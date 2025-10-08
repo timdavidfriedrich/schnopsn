@@ -1,0 +1,45 @@
+[gd_scene load_steps=3 format=3 uid="uid://c8a76omc3aco2"]
+
+[ext_resource type="Script" uid="uid://da2difnyddqdl" path="res://scripts/CardManager.cs" id="1_0xm2m"]
+[ext_resource type="PackedScene" uid="uid://b2ioo5yk4jywm" path="res://scenes/card.tscn" id="1_ig7tw"]
+
+[node name="Main" type="Node2D"]
+
+[node name="CardManager" type="Node2D" parent="."]
+script = ExtResource("1_0xm2m")
+
+[node name="Card" parent="CardManager" instance=ExtResource("1_ig7tw")]
+position = Vector2(50, 586)
+scale = Vector2(1.5, 1.5)
+
+[node name="Card2" parent="CardManager" instance=ExtResource("1_ig7tw")]
+position = Vector2(112, 586)
+scale = Vector2(1.5, 1.5)
+
+[node name="Card3" parent="CardManager" instance=ExtResource("1_ig7tw")]
+position = Vector2(174, 589)
+scale = Vector2(1.5, 1.5)
+
+[node name="Card4" parent="CardManager" instance=ExtResource("1_ig7tw")]
+position = Vector2(242, 590)
+scale = Vector2(1.5, 1.5)
+
+[node name="Card5" parent="CardManager" instance=ExtResource("1_ig7tw")]
+position = Vector2(306, 591)
+scale = Vector2(1.5, 1.5)
+
+[node name="Card6" parent="CardManager" instance=ExtResource("1_ig7tw")]
+position = Vector2(117, 360)
+scale = Vector2(2, 2)
+
+[node name="Card7" parent="CardManager" instance=ExtResource("1_ig7tw")]
+position = Vector2(250, 359)
+scale = Vector2(2, 2)
+
+[node name="Card8" parent="CardManager" instance=ExtResource("1_ig7tw")]
+position = Vector2(118, 163)
+scale = Vector2(2, 2)
+
+[node name="Card9" parent="CardManager" instance=ExtResource("1_ig7tw")]
+position = Vector2(249, 162)
+scale = Vector2(2, 2)
