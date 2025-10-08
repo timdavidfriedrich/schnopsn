@@ -9,37 +9,105 @@
 script = ExtResource("1_0xm2m")
 
 [node name="Card" parent="CardManager" instance=ExtResource("1_ig7tw")]
-position = Vector2(50, 586)
+position = Vector2(65, 554)
 scale = Vector2(1.5, 1.5)
 
 [node name="Card2" parent="CardManager" instance=ExtResource("1_ig7tw")]
-position = Vector2(112, 586)
+position = Vector2(103.00001, 552)
 scale = Vector2(1.5, 1.5)
 
 [node name="Card3" parent="CardManager" instance=ExtResource("1_ig7tw")]
-position = Vector2(174, 589)
+position = Vector2(146, 557)
 scale = Vector2(1.5, 1.5)
 
 [node name="Card4" parent="CardManager" instance=ExtResource("1_ig7tw")]
-position = Vector2(242, 590)
+position = Vector2(196.00002, 557)
 scale = Vector2(1.5, 1.5)
 
 [node name="Card5" parent="CardManager" instance=ExtResource("1_ig7tw")]
-position = Vector2(306, 591)
+position = Vector2(248, 556)
 scale = Vector2(1.5, 1.5)
 
-[node name="Card6" parent="CardManager" instance=ExtResource("1_ig7tw")]
-position = Vector2(117, 360)
-scale = Vector2(2, 2)
+[node name="Card" parent="." instance=ExtResource("1_ig7tw")]
+position = Vector2(91, 50)
+scale = Vector2(0.8, 0.8)
 
-[node name="Card7" parent="CardManager" instance=ExtResource("1_ig7tw")]
-position = Vector2(250, 359)
-scale = Vector2(2, 2)
+[node name="Card2" parent="." instance=ExtResource("1_ig7tw")]
+position = Vector2(129, 57)
+scale = Vector2(0.8, 0.8)
 
-[node name="Card8" parent="CardManager" instance=ExtResource("1_ig7tw")]
-position = Vector2(118, 163)
-scale = Vector2(2, 2)
+[node name="Card3" parent="." instance=ExtResource("1_ig7tw")]
+position = Vector2(164, 53)
+scale = Vector2(0.8, 0.8)
 
-[node name="Card9" parent="CardManager" instance=ExtResource("1_ig7tw")]
-position = Vector2(249, 162)
-scale = Vector2(2, 2)
+[node name="Card4" parent="." instance=ExtResource("1_ig7tw")]
+position = Vector2(199, 59)
+scale = Vector2(0.8, 0.8)
+
+[node name="Card5" parent="." instance=ExtResource("1_ig7tw")]
+position = Vector2(226, 53)
+scale = Vector2(0.8, 0.8)
+
+[node name="Card6" parent="." instance=ExtResource("1_ig7tw")]
+position = Vector2(266, 163)
+rotation = 2.073451
+
+[node name="Card9" parent="." instance=ExtResource("1_ig7tw")]
+position = Vector2(74.99999, 266)
+rotation = 1.7086773
+
+[node name="Card8" parent="." instance=ExtResource("1_ig7tw")]
+position = Vector2(48, 268.00003)
+
+[node name="Card10" parent="." instance=ExtResource("1_ig7tw")]
+position = Vector2(194, 277)
+
+[node name="Card11" parent="." instance=ExtResource("1_ig7tw")]
+position = Vector2(274, 402)
+rotation = 1.097812
+
+[node name="Card7" parent="." instance=ExtResource("1_ig7tw")]
+position = Vector2(279, 395)
+
+[node name="Card12" parent="." instance=ExtResource("1_ig7tw")]
+position = Vector2(273, 161)
+
+[node name="TextEdit2" type="TextEdit" parent="."]
+offset_left = 259.0
+offset_top = 376.0
+offset_right = 302.0
+offset_bottom = 417.0
+text = "31"
+
+[node name="TextEdit" type="TextEdit" parent="."]
+offset_left = 252.0
+offset_top = 140.0
+offset_right = 295.0
+offset_bottom = 181.0
+text = "45"
+
+[node name="ColorRect2" type="ColorRect" parent="."]
+offset_left = 24.0
+offset_top = 416.0
+offset_right = 156.0
+offset_bottom = 439.0
+
+[node name="ColorRect" type="ColorRect" parent="ColorRect2"]
+layout_mode = 0
+offset_left = -1.0
+offset_top = 32.0
+offset_right = 96.0
+offset_bottom = 46.0
+
+[node name="ColorRect" type="ColorRect" parent="."]
+offset_left = 25.0
+offset_top = 109.0
+offset_right = 157.0
+offset_bottom = 132.0
+
+[node name="ColorRect" type="ColorRect" parent="ColorRect"]
+layout_mode = 0
+offset_left = -1.0
+offset_top = 32.0
+offset_right = 96.0
+offset_bottom = 46.0
