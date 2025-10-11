@@ -1,3 +1,12 @@
-# Godot 4+ specific ignores
 .godot/
 /android/
+.vscode/
+**/*.import
+**/*.cs.uid
+*.editorconfig
+export_presets.cfg
+**/*.tmp
+**/*.temp
+**/*.log
+**/*.DS_Store
+**/desktop.ini
