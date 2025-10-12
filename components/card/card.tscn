@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://b2ioo5yk4jywm"]
 
-[ext_resource type="Script" uid="uid://bvrqulmalxpgt" path="res://src/card/Card.cs" id="1_6u4wf"]
-[ext_resource type="Texture2D" uid="uid://ccg7ife3qkdhm" path="res://src/card/assets/schellen_unter.png" id="1_d81rb"]
+[ext_resource type="Script" uid="uid://calhgpdevs4qx" path="res://components/card/Card.cs" id="1_6u4wf"]
+[ext_resource type="Texture2D" uid="uid://ccg7ife3qkdhm" path="res://components/card/assets/schellen_unter.png" id="1_d81rb"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ig7tw"]
 size = Vector2(58, 92)

@@ -1,75 +1,75 @@
 [gd_scene load_steps=3 format=3 uid="uid://c8a76omc3aco2"]
 
-[ext_resource type="Script" uid="uid://da2difnyddqdl" path="res://src/card/CardManager.cs" id="1_y31xh"]
-[ext_resource type="PackedScene" uid="uid://b2ioo5yk4jywm" path="res://src/card/card.tscn" id="2_ckhby"]
+[ext_resource type="Script" uid="uid://cyv851ocqjlcy" path="res://components/card/CardManager.cs" id="1_6b6fn"]
+[ext_resource type="PackedScene" uid="uid://b2ioo5yk4jywm" path="res://components/card/card.tscn" id="2_ivik7"]
 
 [node name="Main" type="Node2D"]
 
 [node name="CardManager" type="Node2D" parent="."]
-script = ExtResource("1_y31xh")
+script = ExtResource("1_6b6fn")
 
-[node name="Card" parent="CardManager" instance=ExtResource("2_ckhby")]
+[node name="Card" parent="CardManager" instance=ExtResource("2_ivik7")]
 position = Vector2(65, 554)
 scale = Vector2(1.5, 1.5)
 
-[node name="Card2" parent="CardManager" instance=ExtResource("2_ckhby")]
+[node name="Card2" parent="CardManager" instance=ExtResource("2_ivik7")]
 position = Vector2(236, 554)
 scale = Vector2(1.5, 1.5)
 
-[node name="Card3" parent="CardManager" instance=ExtResource("2_ckhby")]
+[node name="Card3" parent="CardManager" instance=ExtResource("2_ivik7")]
 position = Vector2(146, 557)
 scale = Vector2(1.5, 1.5)
 
-[node name="Card4" parent="CardManager" instance=ExtResource("2_ckhby")]
+[node name="Card4" parent="CardManager" instance=ExtResource("2_ivik7")]
 position = Vector2(196.00002, 557)
 scale = Vector2(1.5, 1.5)
 
-[node name="Card5" parent="CardManager" instance=ExtResource("2_ckhby")]
+[node name="Card5" parent="CardManager" instance=ExtResource("2_ivik7")]
 position = Vector2(300, 553)
 scale = Vector2(1.5, 1.5)
 
-[node name="Card" parent="." instance=ExtResource("2_ckhby")]
+[node name="Card" parent="." instance=ExtResource("2_ivik7")]
 position = Vector2(91, 50)
 scale = Vector2(0.8, 0.8)
 
-[node name="Card2" parent="." instance=ExtResource("2_ckhby")]
+[node name="Card2" parent="." instance=ExtResource("2_ivik7")]
 position = Vector2(129, 57)
 scale = Vector2(0.8, 0.8)
 
-[node name="Card3" parent="." instance=ExtResource("2_ckhby")]
+[node name="Card3" parent="." instance=ExtResource("2_ivik7")]
 position = Vector2(164, 53)
 scale = Vector2(0.8, 0.8)
 
-[node name="Card4" parent="." instance=ExtResource("2_ckhby")]
+[node name="Card4" parent="." instance=ExtResource("2_ivik7")]
 position = Vector2(199, 59)
 scale = Vector2(0.8, 0.8)
 
-[node name="Card5" parent="." instance=ExtResource("2_ckhby")]
+[node name="Card5" parent="." instance=ExtResource("2_ivik7")]
 position = Vector2(226, 53)
 scale = Vector2(0.8, 0.8)
 
-[node name="Card6" parent="." instance=ExtResource("2_ckhby")]
+[node name="Card6" parent="." instance=ExtResource("2_ivik7")]
 position = Vector2(266, 163)
 rotation = 2.073451
 
-[node name="Card9" parent="." instance=ExtResource("2_ckhby")]
+[node name="Card9" parent="." instance=ExtResource("2_ivik7")]
 position = Vector2(74.99999, 266)
 rotation = 1.7086773
 
-[node name="Card8" parent="." instance=ExtResource("2_ckhby")]
+[node name="Card8" parent="." instance=ExtResource("2_ivik7")]
 position = Vector2(48, 268.00003)
 
-[node name="Card10" parent="." instance=ExtResource("2_ckhby")]
+[node name="Card10" parent="." instance=ExtResource("2_ivik7")]
 position = Vector2(182, 265)
 
-[node name="Card11" parent="." instance=ExtResource("2_ckhby")]
+[node name="Card11" parent="." instance=ExtResource("2_ivik7")]
 position = Vector2(274, 402)
 rotation = 1.097812
 
-[node name="Card7" parent="." instance=ExtResource("2_ckhby")]
+[node name="Card7" parent="." instance=ExtResource("2_ivik7")]
 position = Vector2(279, 395)
 
-[node name="Card12" parent="." instance=ExtResource("2_ckhby")]
+[node name="Card12" parent="." instance=ExtResource("2_ivik7")]
 position = Vector2(273, 161)
 
 [node name="TextEdit2" type="TextEdit" parent="."]
