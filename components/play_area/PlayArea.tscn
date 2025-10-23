@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://d34nm87qiri50"]
+
+[ext_resource type="Script" uid="uid://dxrdsl10xc0sq" path="res://components/play_area/PlayArea.cs" id="1_u13kx"]
+
+[node name="PlayArea" type="Node2D"]
+script = ExtResource("1_u13kx")

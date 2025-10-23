@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3 uid="uid://dae8wqmuwipy1"]
+
+[ext_resource type="Script" uid="uid://ove3sqxoudnh" path="res://components/hand/Hand.cs" id="1_15m3w"]
+
+[node name="Hand" type="Node2D" node_paths=PackedStringArray("_cardContainer")]
+script = ExtResource("1_15m3w")
+_cardContainer = NodePath("CardContainer")
+
+[node name="CardContainer" type="HBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 10
+
+[node name="ColorRect" type="ColorRect" parent="CardContainer"]
+layout_mode = 2

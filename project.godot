@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Schnopsn"
-run/main_scene="uid://c8a76omc3aco2"
+run/main_scene="uid://c41phke27qcnw"
 config/features=PackedStringArray("4.5", "C#", "Mobile")
 config/icon="res://icon.svg"
 
