@@ -8,6 +8,8 @@ using Schnopsn.components.draw_pile;
 using Schnopsn.core.Utilities;
 using System;
 using System.Collections.Generic;
+using Schnopsn.components.trick_pile;
+using System.Runtime.ExceptionServices;
 
 public partial class Game : Node2D
 {
@@ -16,9 +18,14 @@ public partial class Game : Node2D
     [Export]
     private Hand _enemyHand;
     [Export]
+    private TrickPile _playerTrickPile;
+    [Export]
+    private TrickPile _enemyTrickPile;
+    [Export]
     private PlayArea _playArea;
     [Export]
     private DrawPile _drawPile;
+
     [Export]
     private PackedScene _cardScene;
 
@@ -39,25 +46,31 @@ public partial class Game : Node2D
 
     public override void _Ready()
     {
-        _playerHand.WantsToPlayCard += OnHandWantsToPlayCard;
-        _enemyHand.WantsToPlayCard += OnHandWantsToPlayCard;
-
-        if (_cardScene == null)
-        {
-            GD.PrintErr("Card Scene is not set in the Game node inspector!");
-            return;
-        }
-
-        if (_drawPile == null)
-        {
-            GD.PrintErr("DrawPile is not set in the Game node inspector!");
-            return;
-        }
+        SubscribeToSignals();
 
         CreateAndShuffleCards();
         AddCardsToPile();
         DealCardsToHand(_enemyHand, 5);
         DealCardsToHand(_playerHand, 5);
+    }
+
+    public override void _ExitTree()
+    {
+        UnsubscribeFromSignals();
+    }
+
+    private void SubscribeToSignals()
+    {
+        _playerHand.WantsToPlayCard += OnHandWantsToPlayCard;
+        _enemyHand.WantsToPlayCard += OnHandWantsToPlayCard;
+        _playArea.BothCardsPlayed += OnBothCardsPlayed;
+    }
+
+    private void UnsubscribeFromSignals()
+    {
+        _playerHand.WantsToPlayCard -= OnHandWantsToPlayCard;
+        _enemyHand.WantsToPlayCard -= OnHandWantsToPlayCard;
+        _playArea.BothCardsPlayed -= OnBothCardsPlayed;
     }
 
     private void CreateAndShuffleCards()
@@ -125,9 +138,22 @@ public partial class Game : Node2D
         _playArea.ReceiveCard(card);
     }
 
-    public override void _ExitTree()
+    private void OnBothCardsPlayed(Card[] cards)
     {
-        _playerHand.WantsToPlayCard -= OnHandWantsToPlayCard;
-        _enemyHand.WantsToPlayCard -= OnHandWantsToPlayCard;
+        // TODO: Implement logic to determine winner
+        // random trickPiles as winner for testing
+        List<TrickPile> trickPiles = [_playerTrickPile, _enemyTrickPile];
+        Random rnd = new();
+        int winnerIndex = rnd.Next(trickPiles.Count);
+        TrickPile winnerPile = trickPiles[winnerIndex];
+        // ---
+
+        foreach (Card card in cards)
+        {
+            winnerPile.ReceiveCard(card);
+        }
+
+        DealCardsToHand(_playerHand, 1);
+        DealCardsToHand(_enemyHand, 1);
     }
 }

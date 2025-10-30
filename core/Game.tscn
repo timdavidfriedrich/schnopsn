@@ -1,15 +1,18 @@
-[gd_scene load_steps=6 format=3 uid="uid://c41phke27qcnw"]
+[gd_scene load_steps=7 format=3 uid="uid://c41phke27qcnw"]
 
 [ext_resource type="Script" uid="uid://coxpltcslhiv2" path="res://core/Game.cs" id="1_cmax4"]
 [ext_resource type="PackedScene" uid="uid://b2ioo5yk4jywm" path="res://components/card/Card.tscn" id="2_w2rrx"]
 [ext_resource type="PackedScene" uid="uid://dae8wqmuwipy1" path="res://components/hand/Hand.tscn" id="3_r4riq"]
 [ext_resource type="PackedScene" uid="uid://d34nm87qiri50" path="res://components/play_area/PlayArea.tscn" id="4_2obkm"]
 [ext_resource type="PackedScene" uid="uid://drmhvw5fjh6n3" path="res://components/draw_pile/DrawPile.tscn" id="5_w2rrx"]
+[ext_resource type="PackedScene" uid="uid://ddswxokemicwc" path="res://components/trick_pile/TrickPile.tscn" id="6_r4riq"]
 
-[node name="Game" type="Node2D" node_paths=PackedStringArray("_playerHand", "_enemyHand", "_playArea", "_drawPile")]
+[node name="Game" type="Node2D" node_paths=PackedStringArray("_playerHand", "_enemyHand", "_playerTrickPile", "_enemyTrickPile", "_playArea", "_drawPile")]
 script = ExtResource("1_cmax4")
 _playerHand = NodePath("PlayerHand")
 _enemyHand = NodePath("EnemyHand")
+_playerTrickPile = NodePath("PlayerTrickPile")
+_enemyTrickPile = NodePath("EnemyTrickPile")
 _playArea = NodePath("PlayArea")
 _drawPile = NodePath("DrawPile")
 _cardScene = ExtResource("2_w2rrx")
@@ -21,14 +24,20 @@ offset_right = 603.0
 offset_bottom = 878.0
 color = Color(0.24313726, 0.15294118, 0.19215687, 1)
 
-[node name="EnemyHand" parent="." instance=ExtResource("3_r4riq")]
-position = Vector2(162, 79)
-
 [node name="PlayerHand" parent="." instance=ExtResource("3_r4riq")]
 position = Vector2(168, 543)
 
+[node name="EnemyHand" parent="." instance=ExtResource("3_r4riq")]
+position = Vector2(162, 79)
+
+[node name="PlayerTrickPile" parent="." instance=ExtResource("6_r4riq")]
+position = Vector2(303, 362)
+
+[node name="EnemyTrickPile" parent="." instance=ExtResource("6_r4riq")]
+position = Vector2(301, 185)
+
 [node name="PlayArea" parent="." instance=ExtResource("4_2obkm")]
-position = Vector2(148, 269)
+position = Vector2(173, 281)
 
 [node name="DrawPile" parent="." instance=ExtResource("5_w2rrx")]
-position = Vector2(292, 267)
+position = Vector2(40, 279)

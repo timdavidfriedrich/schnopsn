@@ -2,29 +2,25 @@ namespace Schnopsn.components.play_area;
 
 using Godot;
 using Schnopsn.components.card;
+using Schnopsn.core.Utilities;
+using System.Collections.Generic;
 
-
-public partial class PlayArea : Node2D
+public partial class PlayArea : CardReceiver
 {
-    public async void ReceiveCard(Card card)
+    [Signal]
+    public delegate void BothCardsPlayedEventHandler(Card[] cards);
+
+    private List<Card> _cardsInPlay = [];
+    public int GetCardCount() => _cardsInPlay.Count;
+
+    public override void ReceiveCard(Card card)
     {
-        var startPosition = card.GlobalPosition;
-
-        card.GetParent().RemoveChild(card);
-        AddChild(card);
-
-        card.GlobalPosition = startPosition;
-        card.Play();
-
-        Vector2 targetPosition = GlobalPosition;
-
-        var tween = GetTree().CreateTween();
-        tween.TweenProperty(card, "global_position", targetPosition, 0.4)
-             .SetTrans(Tween.TransitionType.Quint)
-             .SetEase(Tween.EaseType.Out);
-
-        await ToSignal(tween, Tween.SignalName.Finished);
-
-        // TODO: Set card to CardState.Played and handle accordingly.
+        base.ReceiveCard(card);
+        _cardsInPlay.Add(card);
+        if (_cardsInPlay.Count == 2)
+        {
+            EmitSignal(SignalName.BothCardsPlayed, _cardsInPlay.ToArray());
+            _cardsInPlay.Clear();
+        }
     }
 }
