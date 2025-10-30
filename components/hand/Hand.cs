@@ -7,7 +7,7 @@ using System.Collections.Generic;
 public partial class Hand : Node2D
 {
     [Signal]
-    public delegate void CardRequestedEventHandler(Card card);
+    public delegate void WantsToPlayCardEventHandler(Card card);
 
     [Export]
     private HBoxContainer _cardContainer;
@@ -51,7 +51,7 @@ public partial class Hand : Node2D
         {
             _selectedCard = null;
             RemoveCard(clickedCard);
-            EmitSignal(SignalName.CardRequested, clickedCard);
+            EmitSignal(SignalName.WantsToPlayCard, clickedCard);
         }
     }
 

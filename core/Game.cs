@@ -39,7 +39,8 @@ public partial class Game : Node2D
 
     public override void _Ready()
     {
-        _playerHand.CardRequested += OnPlayerWantsToPlayCard;
+        _playerHand.WantsToPlayCard += OnHandWantsToPlayCard;
+        _enemyHand.WantsToPlayCard += OnHandWantsToPlayCard;
 
         if (_cardScene == null)
         {
@@ -114,7 +115,7 @@ public partial class Game : Node2D
         }
     }
 
-    private void OnPlayerWantsToPlayCard(Card card)
+    private void OnHandWantsToPlayCard(Card card)
     {
         if (card.State != CardState.InHand && card.State != CardState.Selected)
         {
@@ -122,5 +123,11 @@ public partial class Game : Node2D
             return;
         }
         _playArea.ReceiveCard(card);
+    }
+
+    public override void _ExitTree()
+    {
+        _playerHand.WantsToPlayCard -= OnHandWantsToPlayCard;
+        _enemyHand.WantsToPlayCard -= OnHandWantsToPlayCard;
     }
 }
