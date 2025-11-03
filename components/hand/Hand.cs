@@ -60,26 +60,4 @@ public partial class Hand : Node2D
         _selectedCard?.Deselect();
         _selectedCard = null;
     }
-
-
-    // DEBUGGING
-    public override void _Draw()
-    {
-        ColorRect colorRect = _cardContainer.GetChildOrNull<ColorRect>(0);
-        HBoxContainer cardContainer = GetNode<HBoxContainer>("CardContainer");
-        if (colorRect != null)
-        {
-            var rect = new Rect2(cardContainer.Position, cardContainer.Size);
-            DrawRect(rect, Colors.Red, filled: false, width: 2.0f);
-        }
-    }
-
-    public override void _Ready()
-    {
-        ColorRect colorRect = _cardContainer.GetChildOrNull<ColorRect>(0);
-        if (colorRect != null)
-        {
-            colorRect.Resized += QueueRedraw;
-        }
-    }
 }
