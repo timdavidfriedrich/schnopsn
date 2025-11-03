@@ -6,6 +6,9 @@ using System;
 
 public partial class CardReceiver : Node2D
 {
+    [Signal]
+    public delegate void CardPositionedEventHandler(Card card);
+
     public virtual void ReceiveCard(Card card)
     {
         TransferOwnership(card);
@@ -32,6 +35,6 @@ public partial class CardReceiver : Node2D
              .SetEase(Tween.EaseType.Out);
 
         await ToSignal(tween, Tween.SignalName.Finished);
+        EmitSignal(SignalName.CardPositioned, card);
     }
-
 }

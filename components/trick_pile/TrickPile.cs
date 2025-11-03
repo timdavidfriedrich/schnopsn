@@ -10,9 +10,17 @@ public partial class TrickPile : CardReceiver
     public override void ReceiveCard(Card card)
     {
         base.ReceiveCard(card);
-        if (GetChildCount() <= 2)
+        int index = GetChildCount();
+
+        if (index <= 2)
         {
-            RotateAndFlipCard(card);
+            CardPositioned += (receivedCard) => 
+            {
+                if (receivedCard == card)
+                {
+                    RotateAndFlipCard(index, card);
+                }
+            };
         }
         else
         {
@@ -20,10 +28,17 @@ public partial class TrickPile : CardReceiver
         }
     }
 
-    private void RotateAndFlipCard(Card card)
+    private void RotateAndFlipCard(int index, Card card)
     {
         card.FaceUp();
-        card.RotationDegrees = 90;
-        card.Position += new Vector2(20, 10);
+        
+        card.PivotOffset = new Vector2(0, card.Size.Y / 2);
+
+        float degree = (index % 2 == 0 ? -1 : 1) * 75;
+        
+        var tween = GetTree().CreateTween();
+        tween.TweenProperty(card, "rotation_degrees", degree, 0.3)
+            .SetTrans(Tween.TransitionType.Quad)
+            .SetEase(Tween.EaseType.Out);
     }
 }

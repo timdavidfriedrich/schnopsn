@@ -31,13 +31,13 @@ position = Vector2(168, 543)
 position = Vector2(162, 79)
 
 [node name="PlayerTrickPile" parent="." instance=ExtResource("6_r4riq")]
-position = Vector2(303, 362)
+position = Vector2(280, 367)
 
 [node name="EnemyTrickPile" parent="." instance=ExtResource("6_r4riq")]
-position = Vector2(301, 185)
+position = Vector2(284, 184)
 
 [node name="PlayArea" parent="." instance=ExtResource("4_2obkm")]
-position = Vector2(173, 281)
+position = Vector2(149, 273)
 
 [node name="DrawPile" parent="." instance=ExtResource("5_w2rrx")]
-position = Vector2(40, 279)
+position = Vector2(33, 274)
