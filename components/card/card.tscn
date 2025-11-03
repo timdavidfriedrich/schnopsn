@@ -7,5 +7,6 @@
 custom_minimum_size = Vector2(44.25, 69)
 offset_right = 59.0
 offset_bottom = 92.0
+pivot_offset = Vector2(29.5, 46)
 texture = ExtResource("1_d81rb")
 script = ExtResource("1_6u4wf")

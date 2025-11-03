@@ -8,11 +8,16 @@ public partial class Card : TextureRect
     public CardColor Color { get; private set; }
     public CardValue Value { get; private set; }
 
+    public bool IsFaceUp { get; private set; } = true;
+
     [Signal]
     public delegate void ClickedEventHandler(Card card);
 
     public Control Placeholder { get; set; }
     public CardState State { get; private set; } = CardState.InHand;
+
+    private Texture2D _backTexture;
+    private Texture2D _frontTexture;
 
     private Vector2 _originalPosition;
     private Vector2 _originalScale;
@@ -25,8 +30,9 @@ public partial class Card : TextureRect
         Color = color;
         Value = value;
 
-        var path = $"res://components/card/assets/{color}_{value}.png";
-        Texture = GD.Load<Texture2D>(path);
+        _backTexture = GD.Load<Texture2D>("res://components/card/assets/rueckseite.png");
+        _frontTexture = GD.Load<Texture2D>($"res://components/card/assets/{color}_{value}.png");
+        Texture = _frontTexture;
         return this;
     }
 
@@ -40,6 +46,18 @@ public partial class Card : TextureRect
     public override void _Process(double delta)
     {
         AnimatePosition(delta);
+    }
+
+    public void FaceUp()
+    {
+        IsFaceUp = true;
+        Texture = _frontTexture;
+    }
+
+    public void FaceDown()
+    {
+        IsFaceUp = false;
+        Texture = _backTexture;
     }
 
     private void AnimatePosition(double delta)
