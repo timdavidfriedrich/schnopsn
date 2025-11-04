@@ -17,6 +17,12 @@ public partial class PlayArea : CardReceiver
     {
         base.ReceiveCard(card);
         _cardsInPlay.Add(card);
+        FinalizeCardInPlayArea(card);
+    }
+
+    private void FinalizeCardInPlayArea(Card card)
+    {
+        card.FaceUp();
         if (_cardsInPlay.Count == 2)
         {
             EmitSignal(SignalName.BothCardsPlayed, _cardsInPlay.ToArray());
