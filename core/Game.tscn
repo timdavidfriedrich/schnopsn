@@ -38,7 +38,7 @@ position = Vector2(280, 351)
 position = Vector2(284, 184)
 
 [node name="PlayArea" parent="." instance=ExtResource("4_2obkm")]
-position = Vector2(149, 273)
+position = Vector2(138, 266)
 
 [node name="DrawPile" parent="." instance=ExtResource("5_w2rrx")]
-position = Vector2(33, 274)
+position = Vector2(20, 264)

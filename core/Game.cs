@@ -9,11 +9,12 @@ using Schnopsn.core.Utilities;
 using System;
 using System.Collections.Generic;
 using Schnopsn.components.trick_pile;
-using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 
 public partial class Game : Node2D
 {
+    [Export]
+    private float _playAreaWaitingTimeMillis = 500f;
     [Export]
     private Hand _playerHand;
     [Export]
@@ -155,7 +156,7 @@ public partial class Game : Node2D
         _playArea.ReceiveCard(card);
     }
 
-    private void OnBothCardsPlayed(Card[] cards)
+    private async void OnBothCardsPlayed(Card[] cards)
     {
         // TODO: Implement logic to determine winner
         // random trickPiles as winner for testing
@@ -164,6 +165,11 @@ public partial class Game : Node2D
         int winnerIndex = rnd.Next(trickPiles.Count);
         TrickPile winnerPile = trickPiles[winnerIndex];
         // ---
+
+        await ToSignal(
+            GetTree().CreateTimer(_playAreaWaitingTimeMillis / 1000f),
+            Timer.SignalName.Timeout
+        );
 
         foreach (Card card in cards)
         {
