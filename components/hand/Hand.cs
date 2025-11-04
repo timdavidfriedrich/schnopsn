@@ -11,6 +11,8 @@ public partial class Hand : CardReceiver
     public delegate void WantsToPlayCardEventHandler(Card card);
 
     [Export]
+    private bool _isPlayerHand = false;
+    [Export]
     private HBoxContainer _cardContainer;
     private Card _selectedCard = null;
     private Dictionary<Card, Control> _cardPlaceholders = [];
@@ -49,7 +51,11 @@ public partial class Hand : CardReceiver
     {
         card.Placeholder = placeholder;
         card.State = CardState.InHand;
-        card.FaceUp();
+        if (_isPlayerHand)
+        {
+            card.FaceUp();
+        }
+        // TODO: Make click behaviour to player only (=> inside if)
         card.Clicked += OnCardClicked;
     }
 
