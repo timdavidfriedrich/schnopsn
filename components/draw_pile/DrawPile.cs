@@ -62,10 +62,6 @@ public partial class DrawPile : CardReceiver
         Card topCard = _cards[_cards.Count - 1];
         _cards.RemoveAt(_cards.Count - 1);
 
-        if (topCard.GetParent() == this)
-        {
-            RemoveChild(topCard);
-        }
         return topCard;
     }
 
