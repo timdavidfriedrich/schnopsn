@@ -11,8 +11,6 @@ public partial class PlayArea : CardReceiver
     public delegate void BothCardsPlayedEventHandler(Card[] cards);
 
     private List<Card> _cardsInPlay = [];
-    
-    public int GetCardCount() => _cardsInPlay.Count;
 
     protected override Vector2 GetTargetPosition(Card card)
     {

@@ -125,7 +125,7 @@ public partial class Game : Node2D
                 hand.ReceiveCard(card);
             }
         }
-        GD.Print($"Dealt {count} cards to {hand.Name}. DrawPile has {_drawPile.GetCardCount()} cards remaining.");
+        GD.Print($"Dealt {count} cards to {hand.Name}.");
     }
 
     public override void _UnhandledInput(InputEvent @event)

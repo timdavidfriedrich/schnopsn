@@ -64,6 +64,4 @@ public partial class DrawPile : CardReceiver
 
         return topCard;
     }
-
-    public int GetCardCount() => _cards.Count;
 }

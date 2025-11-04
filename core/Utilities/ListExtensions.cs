@@ -8,7 +8,7 @@ public static class ListExtensions
 {
     public static void Shuffle<T>(this IList<T> list)
     {
-        if (list == null) throw new ArgumentNullException(nameof(list));
+        if (list == null || list.Count <= 1) return;
         var rng = Random.Shared;
         for (int i = list.Count - 1; i > 0; i--)
         {
