@@ -9,7 +9,7 @@ public partial class Card : TextureRect
     public CardColor Color { get; private set; }
     public CardValue Value { get; private set; }
 
-    public bool IsFaceUp { get; private set; } = true;
+    public bool IsFaceUp { get; private set; }
 
     [Signal]
     public delegate void ClickedEventHandler(Card card);
@@ -33,7 +33,8 @@ public partial class Card : TextureRect
 
         _backTexture = GD.Load<Texture2D>("res://components/card/assets/rueckseite.png");
         _frontTexture = GD.Load<Texture2D>($"res://components/card/assets/{color}_{value}.png");
-        Texture = _frontTexture;
+        Texture = _backTexture;
+        IsFaceUp = false;
         return this;
     }
 
