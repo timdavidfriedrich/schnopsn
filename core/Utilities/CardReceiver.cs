@@ -2,7 +2,6 @@ namespace Schnopsn.core.Utilities;
 
 using Godot;
 using Schnopsn.components.card;
-using System;
 
 public partial class CardReceiver : Node2D
 {

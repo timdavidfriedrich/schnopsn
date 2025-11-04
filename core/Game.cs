@@ -81,9 +81,6 @@ public partial class Game : Node2D
         {
             var card = _cardScene.Instantiate<Card>();
             card = card.WithData(color, value);
-            // TODO: Remove these lines if not needed
-            //AddChild(card);
-            //card.GlobalPosition = GlobalPosition;
             cards.Add(card);
         }
 
@@ -92,13 +89,6 @@ public partial class Game : Node2D
 
     private async Task AddCardsToPile()
     {
-        // foreach (Card card in _cards)
-        // {
-        //     _drawPile.ReceiveCard(card);
-        // }
-        // GD.Print($"Added {_cards.Length} cards to draw pile.");
-
-
         int cardsToPosition = _cards.Length;
         int cardsPositioned = 0;
 
