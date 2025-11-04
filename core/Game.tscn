@@ -25,10 +25,10 @@ offset_bottom = 878.0
 color = Color(0.14901961, 0.36078432, 0.25882354, 1)
 
 [node name="PlayerHand" parent="." instance=ExtResource("3_r4riq")]
-position = Vector2(168, 555)
+position = Vector2(180, 555)
 
 [node name="EnemyHand" parent="." instance=ExtResource("3_r4riq")]
-position = Vector2(162, 79)
+position = Vector2(180, 79)
 
 [node name="PlayerTrickPile" parent="." instance=ExtResource("6_r4riq")]
 position = Vector2(280, 351)
