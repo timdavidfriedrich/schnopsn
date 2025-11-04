@@ -14,7 +14,7 @@ public partial class Card : TextureRect
     public delegate void ClickedEventHandler(Card card);
 
     public Control Placeholder { get; set; }
-    public CardState State { get; private set; } = CardState.InHand;
+    public CardState State { get; set; } = CardState.InHand;
 
     private Texture2D _backTexture;
     private Texture2D _frontTexture;

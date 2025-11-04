@@ -2,9 +2,10 @@ namespace Schnopsn.components.hand;
 
 using Godot;
 using Schnopsn.components.card;
+using Schnopsn.core.Utilities;
 using System.Collections.Generic;
 
-public partial class Hand : Node2D
+public partial class Hand : CardReceiver
 {
     [Signal]
     public delegate void WantsToPlayCardEventHandler(Card card);
@@ -16,16 +17,39 @@ public partial class Hand : Node2D
 
     private Vector2 CardSize = new(59, 92);
 
-    public void AddCard(Card card)
+    protected override Vector2 GetTargetPosition(Card card)
+    {
+        if (_cardPlaceholders.TryGetValue(card, out Control placeholder))
+        {
+            return placeholder.GlobalPosition;
+        }
+        return GlobalPosition;
+    }
+
+    public override void ReceiveCard(Card card)
     {
         Control placeholder = new();
         _cardContainer.AddChild(placeholder);
         placeholder.CustomMinimumSize = CardSize;
-
-        AddChild(card);
-        card.Placeholder = placeholder;
-
+        
         _cardPlaceholders.Add(card, placeholder);
+
+        base.ReceiveCard(card);
+
+        CardPositioned += (receivedCard) => 
+        {
+            if (receivedCard == card)
+            {
+                FinalizeCardInHand(card, placeholder);
+            }
+        };
+    }
+
+    private void FinalizeCardInHand(Card card, Control placeholder)
+    {
+        card.Placeholder = placeholder;
+        card.State = CardState.InHand;
+        card.FaceUp();
         card.Clicked += OnCardClicked;
     }
 

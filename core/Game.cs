@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using Schnopsn.components.trick_pile;
 using System.Runtime.ExceptionServices;
+using System.Threading.Tasks;
 
 public partial class Game : Node2D
 {
@@ -44,12 +45,12 @@ public partial class Game : Node2D
 
     private Card[] _cards;
 
-    public override void _Ready()
+    public override async void _Ready()
     {
         SubscribeToSignals();
 
         CreateAndShuffleCards();
-        AddCardsToPile();
+        await AddCardsToPile();
         DealCardsToHand(_enemyHand, 5);
         DealCardsToHand(_playerHand, 5);
     }
@@ -92,19 +93,48 @@ public partial class Game : Node2D
         {
             var card = _cardScene.Instantiate<Card>();
             card = card.WithData(color, value);
+            // TODO: Remove these lines if not needed
+            //AddChild(card);
+            //card.GlobalPosition = GlobalPosition;
             cards.Add(card);
         }
 
         _cards = cards.ToArray();
     }
 
-    private void AddCardsToPile()
+    private async Task AddCardsToPile()
     {
+        // foreach (Card card in _cards)
+        // {
+        //     _drawPile.ReceiveCard(card);
+        // }
+        // GD.Print($"Added {_cards.Length} cards to draw pile.");
+
+
+        int cardsToPosition = _cards.Length;
+        int cardsPositioned = 0;
+
+        void OnCardPositioned(Card card)
+        {
+            cardsPositioned++;
+        }
+
+        _drawPile.CardPositioned += OnCardPositioned;
+
         foreach (Card card in _cards)
         {
-            _drawPile.AddCard(card);
+            _drawPile.ReceiveCard(card);
         }
         GD.Print($"Added {_cards.Length} cards to draw pile.");
+
+        while (cardsPositioned < cardsToPosition)
+        {
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        }
+
+        _drawPile.CardPositioned -= OnCardPositioned;
+        GD.Print("All cards positioned in draw pile.");
+
     }
 
     private void DealCardsToHand(Hand hand, int count)
@@ -114,7 +144,7 @@ public partial class Game : Node2D
             Card card = _drawPile.DrawCard();
             if (card != null)
             {
-                hand.AddCard(card);
+                hand.ReceiveCard(card);
             }
         }
         GD.Print($"Dealt {count} cards to {hand.Name}. DrawPile has {_drawPile.GetCardCount()} cards remaining.");

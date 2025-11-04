@@ -19,16 +19,23 @@ public partial class CardReceiver : Node2D
     {
         var cardInitialPosition = card.GlobalPosition;
 
-        card.GetParent().RemoveChild(card);
+        card.GetParent()?.RemoveChild(card);
         AddChild(card);
 
         card.GlobalPosition = cardInitialPosition;
         card.Play();
     }
 
+    protected virtual Vector2 GetTargetPosition(Card card)
+    {
+        return GlobalPosition;
+    }
+
     private async void AnimateCardToPilePosition(Card card)
     {
-        var targetPosition = GlobalPosition;
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        
+        var targetPosition = GetTargetPosition(card);
         var tween = GetTree().CreateTween();
         tween.TweenProperty(card, "global_position", targetPosition, 0.4)
              .SetTrans(Tween.TransitionType.Quint)
