@@ -1,5 +1,6 @@
 namespace Schnopsn.components.card;
 
+using System.Threading.Tasks;
 using Godot;
 
 
@@ -48,16 +49,36 @@ public partial class Card : TextureRect
         AnimatePosition(delta);
     }
 
-    public void FaceUp()
+    public async void FaceUp()
     {
+        if (IsFaceUp) return;
         IsFaceUp = true;
-        Texture = _frontTexture;
+        await FlipAnimation(_frontTexture);
     }
 
-    public void FaceDown()
+    public async void FaceDown()
     {
+        if (!IsFaceUp) return;
         IsFaceUp = false;
-        Texture = _backTexture;
+        await FlipAnimation(_backTexture);
+    }
+
+    private async Task FlipAnimation(Texture2D newTexture)
+    {
+        var tween = GetTree().CreateTween();
+        tween.SetEase(Tween.EaseType.InOut);
+        tween.SetTrans(Tween.TransitionType.Quad);
+        
+        tween.TweenProperty(this, "scale:x", 0.0f, 0.15);
+        await ToSignal(tween, Tween.SignalName.Finished);
+
+        Texture = newTexture;
+        
+        tween = GetTree().CreateTween();
+        tween.SetEase(Tween.EaseType.InOut);
+        tween.SetTrans(Tween.TransitionType.Quad);
+        tween.TweenProperty(this, "scale:x", _originalScale.X, 0.15);
+        await ToSignal(tween, Tween.SignalName.Finished);
     }
 
     private void AnimatePosition(double delta)
