@@ -3,6 +3,8 @@ namespace Schnopsn.components.hand;
 using Godot;
 using Schnopsn.components.card;
 using System.Collections.Generic;
+using System.Linq;
+using static Godot.Control;
 
 public partial class Hand : Node2D
 {
@@ -59,5 +61,23 @@ public partial class Hand : Node2D
     {
         _selectedCard?.Deselect();
         _selectedCard = null;
+    }
+
+    public IReadOnlyList<Card> GetCards()
+    {
+        // Die Keys im Dictionary sind genau die Karten in der Hand
+        return _cardPlaceholders.Keys.ToList();
+    }
+
+    // (optional, praktisch)
+    public int Count => _cardPlaceholders.Count;
+
+    public void SetInteractive(bool enabled)
+    {
+        foreach (var card in _cardPlaceholders.Keys)
+        {
+            card.MouseFilter = enabled ? MouseFilterEnum.Stop : MouseFilterEnum.Ignore;
+            card.Modulate = enabled ? Colors.White : new Color(1, 1, 1, 0.6f);
+        }
     }
 }
