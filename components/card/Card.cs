@@ -27,6 +27,8 @@ public partial class Card : TextureRect
 
     private const float _followSpeed = 15.0f;
     private const double _duration = 0.15;
+    private const float _selectedScaleMultiplier = 1.25f;
+    private const float _selectedPositionOffset = 10.0f;
 
     public Card WithData(CardColor color, CardValue value)
     {
@@ -71,12 +73,12 @@ public partial class Card : TextureRect
         var tween = GetTree().CreateTween();
         tween.SetEase(Tween.EaseType.InOut);
         tween.SetTrans(Tween.TransitionType.Quad);
-        
+
         tween.TweenProperty(this, "scale:x", 0.0f, 0.15);
         await ToSignal(tween, Tween.SignalName.Finished);
 
         Texture = newTexture;
-        
+
         tween = GetTree().CreateTween();
         tween.SetEase(Tween.EaseType.InOut);
         tween.SetTrans(Tween.TransitionType.Quad);
@@ -121,10 +123,8 @@ public partial class Card : TextureRect
 
         Tween tween = GetTree().CreateTween();
         tween.SetParallel(true);
-        Vector2 scaleIfSelected = _originalScale * new Vector2(1.25f, 1.25f);
-        float positionFactor = GlobalPosition.Y < GetViewportRect().Size.Y / 2 ? 1 : -1;
-        float distance = 10f;
-        tween.TweenProperty(this, "position:y", positionFactor * distance, _duration);
+        Vector2 scaleIfSelected = _originalScale * _selectedScaleMultiplier;
+        tween.TweenProperty(this, "position:y", -1 * _selectedPositionOffset, _duration);
         tween.TweenProperty(this, "scale", scaleIfSelected, _duration);
     }
 
@@ -134,9 +134,6 @@ public partial class Card : TextureRect
         State = CardState.InHand;
 
         var tween = GetTree().CreateTween();
-        tween.SetParallel(true);
-        tween.TweenProperty(this, "position:y", _originalPosition.Y, _duration).SetTrans(Tween.TransitionType.Quad);
-        tween.TweenProperty(this, "position:x", _originalPosition.X, _duration).SetTrans(Tween.TransitionType.Quad);
         tween.TweenProperty(this, "scale", _originalScale, _duration).SetTrans(Tween.TransitionType.Quad);
     }
 
