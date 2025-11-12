@@ -132,9 +132,6 @@ public partial class Card : TextureRect
         State = CardState.InHand;
 
         var tween = GetTree().CreateTween();
-        tween.SetParallel(true);
-        tween.TweenProperty(this, "position:y", _originalPosition.Y, _duration).SetTrans(Tween.TransitionType.Quad);
-        tween.TweenProperty(this, "position:x", _originalPosition.X, _duration).SetTrans(Tween.TransitionType.Quad);
         tween.TweenProperty(this, "scale", _originalScale, _duration).SetTrans(Tween.TransitionType.Quad);
     }
 
