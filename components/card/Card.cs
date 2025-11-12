@@ -11,6 +11,8 @@ public partial class Card : TextureRect
 
     public bool IsFaceUp { get; private set; }
 
+    public bool isPlayerCard { get; set; }
+
     [Signal]
     public delegate void ClickedEventHandler(Card card);
 

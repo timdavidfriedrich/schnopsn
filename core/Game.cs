@@ -10,163 +10,254 @@ using System;
 using System.Collections.Generic;
 using Schnopsn.components.trick_pile;
 using System.Threading.Tasks;
+using System.Linq;
+
 
 public partial class Game : Node2D
 {
-    [Export]
-    private float _playAreaWaitingTimeMillis = 500f;
-    [Export]
-    private Hand _playerHand;
-    [Export]
-    private Hand _enemyHand;
-    [Export]
-    private TrickPile _playerTrickPile;
-    [Export]
-    private TrickPile _enemyTrickPile;
-    [Export]
-    private PlayArea _playArea;
-    [Export]
-    private DrawPile _drawPile;
+	[Export]
+	private float _playAreaWaitingTimeMillis = 500f;
+	[Export]
+	private Hand _playerHand;
+	[Export]
+	private Hand _enemyHand;
+	[Export]
+	private TrickPile _playerTrickPile;
+	[Export]
+	private TrickPile _enemyTrickPile;
+	[Export]
+	private PlayArea _playArea;
+	[Export]
+	private DrawPile _drawPile;
 
-    [Export]
-    private PackedScene _cardScene;
+	[Export]
+	private PackedScene _cardScene;
 
-    private Card[] _cards;
+	private Card[] _cards;
 
-    public override async void _Ready()
+	private Card trumpCard;
+
+	private CardColor trumpColor;
+
+	private int _playerScore = 0;
+	private int _enemyScore = 0;
+
+	private int _playerExtraPoints = 0;
+	private int _enemyExtraPoints = 0;
+
+	public override async void _Ready()
+	{
+		SubscribeToSignals();
+
+		CreateAndShuffleCards();
+		await AddCardsToPile();
+
+		DealCardsToHand(_playerHand, 3);
+
+		DealCardsToHand(_enemyHand, 3);
+
+		SetTrump();
+
+		DealCardsToHand(_playerHand, 2);
+
+		DealCardsToHand(_enemyHand, 2);
+	}
+
+	public override void _ExitTree()
+	{
+		UnsubscribeFromSignals();
+	}
+
+	private void SubscribeToSignals()
+	{
+		_playerHand.WantsToPlayCard += OnHandWantsToPlayCard;
+		_enemyHand.WantsToPlayCard += OnHandWantsToPlayCard;
+		_playArea.BothCardsPlayed += OnBothCardsPlayed;
+	}
+
+	private void UnsubscribeFromSignals()
+	{
+		_playerHand.WantsToPlayCard -= OnHandWantsToPlayCard;
+		_enemyHand.WantsToPlayCard -= OnHandWantsToPlayCard;
+		_playArea.BothCardsPlayed -= OnBothCardsPlayed;
+	}
+
+	private void CreateAndShuffleCards()
+	{
+		List<(CardColor color, CardValue value)> _cardSpecs = [];
+		foreach (CardColor color in Enum.GetValues(typeof(CardColor)))
+		{
+			foreach (CardValue value in Enum.GetValues(typeof(CardValue)))
+			{
+				_cardSpecs.Add((color, value));
+			}
+		}
+		GD.Print($"Created {_cardSpecs.Count} cards.");
+
+		_cardSpecs.Shuffle();
+
+		var cards = new List<Card>(_cardSpecs.Count);
+		foreach (var (color, value) in _cardSpecs)
+		{
+			var card = _cardScene.Instantiate<Card>();
+			card = card.WithData(color, value);
+			cards.Add(card);
+		}
+
+		_cards = cards.ToArray();
+	}
+
+	private void SetTrump()
     {
-        SubscribeToSignals();
-
-        CreateAndShuffleCards();
-        await AddCardsToPile();
-        DealCardsToHand(_enemyHand, 5);
-        DealCardsToHand(_playerHand, 5);
+		trumpCard = _drawPile.DrawCard();
+		trumpColor = trumpCard.Color;
+		_drawPile.ReceiveCard(trumpCard);
+		GD.Print($"Trumpf ist {trumpColor} {trumpCard.Value}.");
     }
 
-    public override void _ExitTree()
-    {
-        UnsubscribeFromSignals();
-    }
+	private async Task AddCardsToPile()
+	{
+		int cardsToPosition = _cards.Length;
+		int cardsPositioned = 0;
 
-    private void SubscribeToSignals()
-    {
-        _playerHand.WantsToPlayCard += OnHandWantsToPlayCard;
-        _enemyHand.WantsToPlayCard += OnHandWantsToPlayCard;
-        _playArea.BothCardsPlayed += OnBothCardsPlayed;
-    }
+		void OnCardPositioned(Card card)
+		{
+			cardsPositioned++;
+		}
 
-    private void UnsubscribeFromSignals()
-    {
-        _playerHand.WantsToPlayCard -= OnHandWantsToPlayCard;
-        _enemyHand.WantsToPlayCard -= OnHandWantsToPlayCard;
-        _playArea.BothCardsPlayed -= OnBothCardsPlayed;
-    }
+		_drawPile.CardPositioned += OnCardPositioned;
 
-    private void CreateAndShuffleCards()
-    {
-        List<(CardColor color, CardValue value)> _cardSpecs = [];
-        foreach (CardColor color in Enum.GetValues(typeof(CardColor)))
-        {
-            foreach (CardValue value in Enum.GetValues(typeof(CardValue)))
-            {
-                _cardSpecs.Add((color, value));
-            }
-        }
-        GD.Print($"Created {_cardSpecs.Count} cards.");
+		foreach (Card card in _cards)
+		{
+			_drawPile.ReceiveCard(card);
+		}
+		GD.Print($"Added {_cards.Length} cards to draw pile.");
 
-        _cardSpecs.Shuffle();
+		while (cardsPositioned < cardsToPosition)
+		{
+			await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+		}
 
-        var cards = new List<Card>(_cardSpecs.Count);
-        foreach (var (color, value) in _cardSpecs)
-        {
-            var card = _cardScene.Instantiate<Card>();
-            card = card.WithData(color, value);
-            cards.Add(card);
-        }
+		_drawPile.CardPositioned -= OnCardPositioned;
+		GD.Print("All cards positioned in draw pile.");
 
-        _cards = cards.ToArray();
-    }
+		trumpColor = _cards.Last().Color;
+		GD.Print($"Trumpf ist {trumpColor} {_cards.Last().Value}.");
 
-    private async Task AddCardsToPile()
-    {
-        int cardsToPosition = _cards.Length;
-        int cardsPositioned = 0;
+	}
 
-        void OnCardPositioned(Card card)
-        {
-            cardsPositioned++;
-        }
+	private void DealCardsToHand(Hand hand, int count)
+	{
+		for (int i = 0; i < count; i++)
+		{
+			Card card = _drawPile.DrawCard();
+			if (card != null)
+			{
+				card.isPlayerCard = hand == _playerHand;
+				hand.ReceiveCard(card);
+			}
+		}
+		GD.Print($"Dealt {count} cards to {hand.Name}.");
+	}
 
-        _drawPile.CardPositioned += OnCardPositioned;
+	public override void _UnhandledInput(InputEvent @event)
+	{
+		if (@event is InputEventScreenTouch touchEvent && touchEvent.Pressed)
+		{
+			_playerHand.OnTouchOutside();
+		}
+	}
 
-        foreach (Card card in _cards)
-        {
-            _drawPile.ReceiveCard(card);
-        }
-        GD.Print($"Added {_cards.Length} cards to draw pile.");
+	private void OnHandWantsToPlayCard(Card card, Hand hand)
+	{
+		if (card.State != CardState.InHand && card.State != CardState.Selected)
+		{
+			GD.PrintErr("Attempted to play a card that is not in hand nor selected!");
+			return;
+		}
 
-        while (cardsPositioned < cardsToPosition)
-        {
-            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        }
+		//Swap of Trump Card is bugged - need to fix first
+		// if (card.Color == trumpColor && card.Value == CardValue.unter && _cards.Length > 2 && _cards.Last().Color == trumpColor)
+		// {
+		// 	hand.RemoveCard(card);
+		// 	_drawPile.RemoveCard(trumpCard);
 
-        _drawPile.CardPositioned -= OnCardPositioned;
-        GD.Print("All cards positioned in draw pile.");
+		// 	hand.ReceiveCard(trumpCard);
+		// 	_drawPile.ReceiveCard(card);
 
-    }
+		// 	GD.Print($"{(hand == _playerHand ? "Player" : "Enemy")} performed Unter swap!");
+		// }
 
-    private void DealCardsToHand(Hand hand, int count)
-    {
-        for (int i = 0; i < count; i++)
-        {
-            Card card = _drawPile.DrawCard();
-            if (card != null)
-            {
-                hand.ReceiveCard(card);
-            }
-        }
-        GD.Print($"Dealt {count} cards to {hand.Name}.");
-    }
+		if (hand.checkAnsage(card))
+		{
+			int extrapoints = 20;
+			if (card.Color == trumpColor) extrapoints = 40;
+			if (hand == _playerHand)
+			{
+				_playerExtraPoints += extrapoints;
+				GD.Print($"Player announced {extrapoints} extra points!");
+				//todo check game end
+			}
+			else
+			{
+				_enemyExtraPoints += extrapoints;
+				GD.Print($"Enemy announced {extrapoints} extra points!");
+				//todo check game end
+			}
+		}
 
-    public override void _UnhandledInput(InputEvent @event)
-    {
-        if (@event is InputEventScreenTouch touchEvent && touchEvent.Pressed)
-        {
-            _playerHand.OnTouchOutside();
-        }
-    }
+		_playArea.ReceiveCard(card);
+	}
 
-    private void OnHandWantsToPlayCard(Card card)
-    {
-        if (card.State != CardState.InHand && card.State != CardState.Selected)
-        {
-            GD.PrintErr("Attempted to play a card that is not in hand nor selected!");
-            return;
-        }
-        _playArea.ReceiveCard(card);
-    }
+	private async void OnBothCardsPlayed(Card[] cards)
+	{
 
-    private async void OnBothCardsPlayed(Card[] cards)
-    {
-        // TODO: Implement logic to determine winner
-        // random trickPiles as winner for testing
-        List<TrickPile> trickPiles = [_playerTrickPile, _enemyTrickPile];
-        Random rnd = new();
-        int winnerIndex = rnd.Next(trickPiles.Count);
-        TrickPile winnerPile = trickPiles[winnerIndex];
-        // ---
+		var winner = Rules.determineWinner(cards[0], cards[1], trumpColor);
 
-        await ToSignal(
-            GetTree().CreateTimer(_playAreaWaitingTimeMillis / 1000f),
-            Timer.SignalName.Timeout
-        );
+		var winnerPile = winner.isPlayerCard ? _playerTrickPile : _enemyTrickPile;
 
-        foreach (Card card in cards)
-        {
-            winnerPile.ReceiveCard(card);
-        }
 
-        DealCardsToHand(_playerHand, 1);
-        DealCardsToHand(_enemyHand, 1);
-    }
+
+		await ToSignal(
+			GetTree().CreateTimer(_playAreaWaitingTimeMillis / 1000f),
+			Timer.SignalName.Timeout
+		);
+
+		foreach (Card card in cards)
+		{
+			winnerPile.ReceiveCard(card);
+		}
+
+
+
+		if (winner.isPlayerCard)
+		{
+			_playerScore += Rules.Points(cards[0].Value) + Rules.Points(cards[1].Value);
+			DealCardsToHand(_playerHand, 1);
+			DealCardsToHand(_enemyHand, 1);
+		}
+		else
+		{
+			_enemyScore += Rules.Points(cards[0].Value) + Rules.Points(cards[1].Value);
+			DealCardsToHand(_enemyHand, 1);
+			DealCardsToHand(_playerHand, 1);
+		}
+
+		int totalPlayerPoints = _playerScore + _playerExtraPoints;
+		int totalEnemyPoints = _enemyScore + _enemyExtraPoints;
+
+		if (_playerScore == 0) totalPlayerPoints = 0;
+		if (_enemyScore == 0) totalEnemyPoints = 0;
+		GD.Print($"Player score: {totalPlayerPoints}, Enemy score: {totalEnemyPoints}");
+
+		
+		if (totalPlayerPoints >= 66)
+		{
+			GD.Print("Player wins the game!");
+		}
+		else if (totalEnemyPoints >= 66)
+		{
+			GD.Print("Enemy wins the game!");
+		}
+	}
 }

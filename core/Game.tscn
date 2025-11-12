@@ -1,7 +1,7 @@
 [gd_scene load_steps=7 format=3 uid="uid://c41phke27qcnw"]
 
-[ext_resource type="Script" uid="uid://coxpltcslhiv2" path="res://core/Game.cs" id="1_cmax4"]
-[ext_resource type="PackedScene" uid="uid://b2ioo5yk4jywm" path="res://components/card/Card.tscn" id="2_w2rrx"]
+[ext_resource type="Script" uid="uid://d4e1b1o4ridkf" path="res://core/Game.cs" id="1_cmax4"]
+[ext_resource type="PackedScene" uid="uid://b2ioo5yk4jywm" path="res://components/card/card.tscn" id="2_w2rrx"]
 [ext_resource type="PackedScene" uid="uid://dae8wqmuwipy1" path="res://components/hand/Hand.tscn" id="3_r4riq"]
 [ext_resource type="PackedScene" uid="uid://d34nm87qiri50" path="res://components/play_area/PlayArea.tscn" id="4_2obkm"]
 [ext_resource type="PackedScene" uid="uid://drmhvw5fjh6n3" path="res://components/draw_pile/DrawPile.tscn" id="5_w2rrx"]
@@ -30,6 +30,7 @@ _isPlayerHand = true
 
 [node name="EnemyHand" parent="." instance=ExtResource("3_r4riq")]
 position = Vector2(180, 79)
+_debugMode = true
 
 [node name="PlayerTrickPile" parent="." instance=ExtResource("6_r4riq")]
 position = Vector2(280, 351)

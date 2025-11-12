@@ -7,61 +7,66 @@ using System.Collections.Generic;
 
 public partial class DrawPile : CardReceiver
 {
-    private readonly List<Card> _cards = [];
+	private readonly List<Card> _cards = [];
 
-    private const float _maxRotation = 0.2f;
-    private const float _cardOffsetX = 0.5f;
-    private const float _cardOffsetY = 0.3f;
+	private const float _maxRotation = 0.2f;
+	private const float _cardOffsetX = 0.5f;
+	private const float _cardOffsetY = 0.3f;
 
-    private RandomNumberGenerator _random = new();
+	private RandomNumberGenerator _random = new();
 
-    public override void _Ready()
-    {
-        _random.Randomize();
-    }
+	public override void _Ready()
+	{
+		_random.Randomize();
+	}
 
-    public override void ReceiveCard(Card card)
-    {
-        _cards.Add(card);
-        
-        base.ReceiveCard(card);
+	public override void ReceiveCard(Card card)
+	{
+		_cards.Add(card);
 
-        void OnCardPositionedHandler(Card receivedCard)
-        {
-            if (receivedCard == card)
-            {
-                ApplyPilePositioning(card);
-                CardPositioned -= OnCardPositionedHandler;
-            }
-        }
+		base.ReceiveCard(card);
 
-        CardPositioned += OnCardPositionedHandler;
-    }
+		void OnCardPositionedHandler(Card receivedCard)
+		{
+			if (receivedCard == card)
+			{
+				ApplyPilePositioning(card);
+				CardPositioned -= OnCardPositionedHandler;
+			}
+		}
 
-    private void ApplyPilePositioning(Card card)
-    {
-        int cardIndex = _cards.IndexOf(card);
-        if (cardIndex == -1) return;
-        
-        Vector2 offset = new(
-            cardIndex * _cardOffsetX,
-            cardIndex * _cardOffsetY
-        );
+		CardPositioned += OnCardPositionedHandler;
+	}
+	
+	public void RemoveCard(Card card)
+	{
+		_cards.Remove(card);
+	}
 
-        float randomRotation = _random.Randf() * _maxRotation - (_maxRotation / 2f);
+	private void ApplyPilePositioning(Card card)
+	{
+		int cardIndex = _cards.IndexOf(card);
+		if (cardIndex == -1) return;
+		
+		Vector2 offset = new(
+			cardIndex * _cardOffsetX,
+			cardIndex * _cardOffsetY
+		);
 
-        card.GlobalPosition = GlobalPosition + offset;
-        card.Rotation = randomRotation;
-        card.FaceDown();
-    }
+		float randomRotation = _random.Randf() * _maxRotation - (_maxRotation / 2f);
 
-    public Card DrawCard()
-    {
-        if (_cards.Count == 0) return null;
+		card.GlobalPosition = GlobalPosition + offset;
+		card.Rotation = randomRotation;
+		card.FaceDown();
+	}
 
-        Card topCard = _cards[_cards.Count - 1];
-        _cards.RemoveAt(_cards.Count - 1);
+	public Card DrawCard()
+	{
+		if (_cards.Count == 0) return null;
 
-        return topCard;
-    }
+		Card topCard = _cards[0];
+		_cards.RemoveAt(0);
+
+		return topCard;
+	}
 }
