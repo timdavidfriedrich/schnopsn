@@ -12,6 +12,8 @@ public partial class DrawPile : CardReceiver
 	private const float _maxRotation = 0.2f;
 	private const float _cardOffsetX = 0.5f;
 	private const float _cardOffsetY = 0.3f;
+	public int CardCount => _cards.Count;
+
 
 	private RandomNumberGenerator _random = new();
 
@@ -36,6 +38,11 @@ public partial class DrawPile : CardReceiver
 		}
 
 		CardPositioned += OnCardPositionedHandler;
+	}
+
+	public bool ContainsCard(Card card)
+	{
+		return _cards.Contains(card);
 	}
 	
 	public void RemoveCard(Card card)

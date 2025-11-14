@@ -172,17 +172,33 @@ public partial class Game : Node2D
 			return;
 		}
 
-		//Swap of Trump Card is bugged - need to fix first
-		// if (card.Color == trumpColor && card.Value == CardValue.unter && _cards.Length > 2 && _cards.Last().Color == trumpColor)
-		// {
-		// 	hand.RemoveCard(card);
-		// 	_drawPile.RemoveCard(trumpCard);
+		// --- Trumpf-Unter-Tausch ---
+		// Wenn der Spieler den Trumpf-Unter "spielt" und noch > 2 Karten im Talon sind,
+		// darf er den Unter gegen die aufgedeckte Trumpfkarte tauschen.
+		if (card.Color == trumpColor
+			&& card.Value == CardValue.unter
+			&& _drawPile.CardCount > 2              // richtiger Talon-Count
+			&& _drawPile.ContainsCard(trumpCard))   // Trumpfkarte liegt noch im Talon
+		{
+			// Unter auf den Nachziehstapel legen (als neue offene Trumpfkarte)
+			_drawPile.ReceiveCard(card);
 
-		// 	hand.ReceiveCard(trumpCard);
-		// 	_drawPile.ReceiveCard(card);
+			// Alte Trumpfkarte aus dem Talon entfernen (nur aus der internen Liste)
+			_drawPile.RemoveCard(trumpCard);
 
-		// 	GD.Print($"{(hand == _playerHand ? "Player" : "Enemy")} performed Unter swap!");
-		// }
+			// Alte Trumpfkarte in die Hand des Spielers geben
+			hand.ReceiveCard(trumpCard);
+
+			// Neue "sichtbare" Trumpfkarte ist jetzt der Unter
+			trumpCard = card;
+
+			GD.Print($"{(hand == _playerHand ? "Player" : "Enemy")} performed Unter swap!");
+
+			// WICHTIG:
+			// Kein Ausspielen in die PlayArea – das war nur ein Tausch.
+			// Der Spieler muss danach eine Karte normal spielen.
+			return;
+		}
 
 		if (hand.CheckAnsage(card))
 		{
