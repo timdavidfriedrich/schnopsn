@@ -30,17 +30,50 @@ public partial class CardReceiver : Node2D
         return GlobalPosition;
     }
 
-    private async void AnimateCardToPilePosition(Card card)
+    private void AnimateCardToPilePosition(Card card)
     {
-        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        
-        var targetPosition = GetTargetPosition(card);
-        var tween = GetTree().CreateTween();
-        tween.TweenProperty(card, "global_position", targetPosition, 0.4)
-             .SetTrans(Tween.TransitionType.Quint)
-             .SetEase(Tween.EaseType.Out);
+        // Wenn wir nicht mehr im Tree sind, gar nicht erst loslegen
+        if (!GodotObject.IsInstanceValid(this) || !IsInsideTree())
+            return;
 
-        await ToSignal(tween, Tween.SignalName.Finished);
-        EmitSignal(SignalName.CardPositioned, card);
+        if (!GodotObject.IsInstanceValid(card) || !card.IsInsideTree())
+            return;
+
+        // Auf nächsten Frame verschieben
+        CallDeferred(MethodName.StartTween, card);
     }
+
+    private void StartTween(Card card)
+    {
+        // Szene evtl. schon gewechselt → nochmal prüfen
+        if (!GodotObject.IsInstanceValid(this) || !IsInsideTree())
+            return;
+
+        if (!GodotObject.IsInstanceValid(card) || !card.IsInsideTree())
+            return;
+
+        var tree = GetTree();
+        if (tree == null)
+            return;
+
+        var targetPosition = GetTargetPosition(card);
+
+        var tween = tree.CreateTween();
+        if (tween == null)
+            return;
+
+        tween.TweenProperty(card, "global_position", targetPosition, 0.4f)
+            .SetTrans(Tween.TransitionType.Quint)
+            .SetEase(Tween.EaseType.Out);
+
+        tween.Finished += () =>
+        {
+            if (GodotObject.IsInstanceValid(this) && IsInsideTree())
+            {
+                EmitSignal(SignalName.CardPositioned, card);
+            }
+        };
+    }
+
+
 }

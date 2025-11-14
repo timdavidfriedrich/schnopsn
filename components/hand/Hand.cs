@@ -121,4 +121,16 @@ public partial class Hand : CardReceiver
 			return possibleAnsagen.Any(c => c.Value == CardValue.koenig);
 		}
 	}
+
+	public bool HasCards => _cardPlaceholders.Count > 0;
+
+	public void PlayAnyCard()
+    {
+		if (_cardPlaceholders.Count == 0) return;
+
+		var card = _cardPlaceholders.Keys.FirstOrDefault(c => c.State == CardState.InHand);
+		if (card == null) return;
+		RemoveCard(card);
+		EmitSignal(SignalName.WantsToPlayCard, card, this);
+    }
 }

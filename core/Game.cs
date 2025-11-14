@@ -45,6 +45,16 @@ public partial class Game : Node2D
 	private int _playerExtraPoints = 0;
 	private int _enemyExtraPoints = 0;
 
+	private bool _isFirstCardofTrick = true;
+
+	private static int _playerBummerl = 0;
+	private static int _enemyBummerl = 0;
+
+	[Export]
+	private Label _playerBummerlLabel;
+	[Export]
+	private Label _enemyBummerlLabel;
+
 	public override async void _Ready()
 	{
 		SubscribeToSignals();
@@ -108,12 +118,12 @@ public partial class Game : Node2D
 	}
 
 	private void SetTrump()
-    {
+	{
 		trumpCard = _drawPile.DrawCard();
 		trumpColor = trumpCard.Color;
 		_drawPile.ReceiveCard(trumpCard);
 		GD.Print($"Trumpf ist {trumpColor} {trumpCard.Value}.");
-    }
+	}
 
 	private async Task AddCardsToPile()
 	{
@@ -164,7 +174,7 @@ public partial class Game : Node2D
 		}
 	}
 
-	private void OnHandWantsToPlayCard(Card card, Hand hand)
+	private async void OnHandWantsToPlayCard(Card card, Hand hand)
 	{
 		if (card.State != CardState.InHand && card.State != CardState.Selected)
 		{
@@ -194,6 +204,15 @@ public partial class Game : Node2D
 
 			GD.Print($"{(hand == _playerHand ? "Player" : "Enemy")} performed Unter swap!");
 
+			if (hand == _enemyHand)
+			{
+				// kurz warten, damit die neue Trumpfkarte in der Hand ankommt
+				await ToSignal(GetTree().CreateTimer(0.3f), Timer.SignalName.Timeout);
+
+				// jetzt eine echte Karte spielen lassen
+				_enemyHand.PlayAnyCard();
+			}
+
 			// WICHTIG:
 			// Kein Ausspielen in die PlayArea – das war nur ein Tausch.
 			// Der Spieler muss danach eine Karte normal spielen.
@@ -218,7 +237,19 @@ public partial class Game : Node2D
 			}
 		}
 
+		bool isFirstCardofTrick = _isFirstCardofTrick;
+
+		if (_isFirstCardofTrick)
+		{
+			_isFirstCardofTrick = false;
+		}
+
 		_playArea.ReceiveCard(card);
+
+		if (isFirstCardofTrick && hand == _playerHand)
+		{
+			_enemyHand.PlayAnyCard();
+		}
 	}
 
 	private async void OnBothCardsPlayed(Card[] cards)
@@ -262,14 +293,70 @@ public partial class Game : Node2D
 		if (_enemyScore == 0) totalEnemyPoints = 0;
 		GD.Print($"Player score: {totalPlayerPoints}, Enemy score: {totalEnemyPoints}");
 
-		
-		if (totalPlayerPoints >= 66)
+		bool playerWonGame = totalPlayerPoints >= 66;
+		bool enemyWonGame = totalEnemyPoints >= 66;
+
+		if (playerWonGame)
 		{
-			GD.Print("Player wins the game!");
+			_playerBummerl++;      // oder _enemyBummerl++, je nachdem wie du "Bummerl" definierst
+			GD.Print($"Player wins the game! Bummerl – Player: {_playerBummerl}, Enemy: {_enemyBummerl}");
+			UpdateBummerlUi();
+			ResetGame();
+			return;
 		}
-		else if (totalEnemyPoints >= 66)
+		else if (enemyWonGame)
 		{
-			GD.Print("Enemy wins the game!");
+			_enemyBummerl++;
+			GD.Print($"Enemy wins the game! Bummerl – Player: {_playerBummerl}, Enemy: {_enemyBummerl}");
+			UpdateBummerlUi();
+			ResetGame();
+			return;
+		}
+
+		// Neuen Stich vorbereiten
+		_isFirstCardofTrick = true;
+
+		// Wenn der Gegner den Stich gewonnen hat und das Spiel noch nicht vorbei ist,
+		// soll der Gegner den nächsten Stich eröffnen.
+		if (!playerWonGame && !enemyWonGame && !winner.isPlayerCard)
+		{
+			await ToSignal(GetTree().CreateTimer(0.3f), Timer.SignalName.Timeout);
+
+			if (_enemyHand.HasCards)
+			{
+				_enemyHand.PlayAnyCard();
+			}
+		}
+
+	}
+
+	private void UpdateBummerlUi()
+	{
+		GD.Print($"Bummerl – Player: {_playerBummerl}, Enemy: {_enemyBummerl}");
+
+		if (_playerBummerlLabel != null)
+			_playerBummerlLabel.Text = _playerBummerl.ToString();
+		if (_enemyBummerlLabel != null)
+			_enemyBummerlLabel.Text = _enemyBummerl.ToString();
+	}
+
+	private void ResetGame()
+	{
+		GD.Print("Resetting game...");
+		GetTree().ReloadCurrentScene();
+	}
+
+
+	private void ClearCardsFromReceiver(Node node)
+	{
+		foreach (Node child in node.GetChildren())
+		{
+			if (child is Card card)
+			{
+				card.QueueFree();
+			}
 		}
 	}
+
 }
+	
