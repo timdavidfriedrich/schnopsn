@@ -140,10 +140,6 @@ public partial class Game : Node2D
 
 		_drawPile.CardPositioned -= OnCardPositioned;
 		GD.Print("All cards positioned in draw pile.");
-
-		trumpColor = _cards.Last().Color;
-		GD.Print($"Trumpf ist {trumpColor} {_cards.Last().Value}.");
-
 	}
 
 	private void DealCardsToHand(Hand hand, int count)
@@ -188,7 +184,7 @@ public partial class Game : Node2D
 		// 	GD.Print($"{(hand == _playerHand ? "Player" : "Enemy")} performed Unter swap!");
 		// }
 
-		if (hand.checkAnsage(card))
+		if (hand.CheckAnsage(card))
 		{
 			int extrapoints = 20;
 			if (card.Color == trumpColor) extrapoints = 40;

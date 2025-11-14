@@ -102,21 +102,23 @@ public partial class Hand : CardReceiver
 		return _cardPlaceholders.ContainsKey(card);
 	}
 
-	public bool checkAnsage(Card card)
+	public bool CheckAnsage(Card card)
 	{
+		if (card == null) return false;
 		if (card.Value != CardValue.koenig && card.Value != CardValue.ober) return false;
 
-		List<Card> possibleAnsagen = this._cardPlaceholders.Select(kv => kv.Key).Where(c => c.Color == card.Color && c.Value == CardValue.ober || c.Value == CardValue.koenig).ToList();
+		var possibleAnsagen = _cardPlaceholders.Keys
+			.Where(c => !ReferenceEquals(c, card)
+						&& c.Color == card.Color
+						&& (c.Value == CardValue.ober || c.Value == CardValue.koenig));
 
-		if(card.Value == CardValue.koenig)
+		if (card.Value == CardValue.koenig)
 		{
 			return possibleAnsagen.Any(c => c.Value == CardValue.ober);
 		}
-		else if(card.Value == CardValue.ober)
+		else // ober
 		{
 			return possibleAnsagen.Any(c => c.Value == CardValue.koenig);
 		}
-
-		return false;
 	}
 }
