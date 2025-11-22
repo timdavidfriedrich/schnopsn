@@ -2,5 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dxanecwg62ffp" path="res://components/trick_pile/TrickPile.cs" id="1_dkpdp"]
 
-[node name="TrickPile" type="Node2D"]
+[node name="TrickPile" type="Control"]
+layout_mode = 3
+anchors_preset = 0
 script = ExtResource("1_dkpdp")

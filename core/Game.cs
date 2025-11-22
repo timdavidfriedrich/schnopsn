@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using System.Linq;
 
 
-public partial class Game : Node2D
+public partial class Game : Panel
 {
 	[Export]
 	private float _playAreaWaitingTimeMillis = 500f;

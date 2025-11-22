@@ -1,45 +1,151 @@
-[gd_scene load_steps=7 format=3 uid="uid://c41phke27qcnw"]
+[gd_scene load_steps=9 format=3 uid="uid://c41phke27qcnw"]
 
-[ext_resource type="Script" uid="uid://d4e1b1o4ridkf" path="res://core/Game.cs" id="1_cmax4"]
+[ext_resource type="Script" uid="uid://coxpltcslhiv2" path="res://core/Game.cs" id="1_cmax4"]
 [ext_resource type="PackedScene" uid="uid://b2ioo5yk4jywm" path="res://components/card/card.tscn" id="2_w2rrx"]
 [ext_resource type="PackedScene" uid="uid://dae8wqmuwipy1" path="res://components/hand/Hand.tscn" id="3_r4riq"]
 [ext_resource type="PackedScene" uid="uid://d34nm87qiri50" path="res://components/play_area/PlayArea.tscn" id="4_2obkm"]
 [ext_resource type="PackedScene" uid="uid://drmhvw5fjh6n3" path="res://components/draw_pile/DrawPile.tscn" id="5_w2rrx"]
+[ext_resource type="PackedScene" path="res://components/CardSizedContainer.tscn" id="6_2obkm"]
 [ext_resource type="PackedScene" uid="uid://ddswxokemicwc" path="res://components/trick_pile/TrickPile.tscn" id="6_r4riq"]
 
-[node name="Game" type="Node2D" node_paths=PackedStringArray("_playerHand", "_enemyHand", "_playerTrickPile", "_enemyTrickPile", "_playArea", "_drawPile")]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r4riq"]
+bg_color = Color(0.14901961, 0.36078432, 0.25882354, 1)
+
+[node name="Game" type="Panel" node_paths=PackedStringArray("_playerHand", "_enemyHand", "_playerTrickPile", "_enemyTrickPile", "_playArea", "_drawPile")]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(3092, 1731)
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_r4riq")
 script = ExtResource("1_cmax4")
-_playerHand = NodePath("PlayerHand")
-_enemyHand = NodePath("EnemyHand")
-_playerTrickPile = NodePath("PlayerTrickPile")
-_enemyTrickPile = NodePath("EnemyTrickPile")
-_playArea = NodePath("PlayArea")
-_drawPile = NodePath("DrawPile")
+_playerHand = NodePath("VBoxContainer/CardSizedContainer2/PlayerHand")
+_enemyHand = NodePath("VBoxContainer/CardSizedContainer/EnemyHand")
+_playerTrickPile = NodePath("VBoxContainer/HBoxContainer3/CenterContainer2/CardSizedContainer/PlayerTrickPile")
+_enemyTrickPile = NodePath("VBoxContainer/HBoxContainer/CenterContainer/CardSizedContainer/EnemyTrickPile")
+_playArea = NodePath("VBoxContainer/HBoxContainer2/CenterContainer2/CardSizedContainer/PlayArea")
+_drawPile = NodePath("VBoxContainer/HBoxContainer2/CenterContainer/CardSizedContainer/DrawPile")
 _cardScene = ExtResource("2_w2rrx")
+metadata/_edit_use_anchors_ = true
 
-[node name="ColorRect" type="ColorRect" parent="."]
-offset_left = -252.0
-offset_top = -259.0
-offset_right = 603.0
-offset_bottom = 878.0
-color = Color(0.14901961, 0.36078432, 0.25882354, 1)
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = 64.0
+offset_right = -32.0
+offset_bottom = -64.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(3208, 1833)
 
-[node name="PlayerHand" parent="." instance=ExtResource("3_r4riq")]
-position = Vector2(180, 555)
+[node name="CardSizedContainer" parent="VBoxContainer" instance=ExtResource("6_2obkm")]
+layout_mode = 2
+
+[node name="EnemyHand" parent="VBoxContainer/CardSizedContainer" instance=ExtResource("3_r4riq")]
+layout_mode = 1
+size_flags_horizontal = 4
+metadata/_edit_use_anchors_ = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CenterContainer" type="CenterContainer" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CardSizedContainer" parent="VBoxContainer/HBoxContainer/CenterContainer" instance=ExtResource("6_2obkm")]
+layout_mode = 2
+
+[node name="EnemyTrickPile" parent="VBoxContainer/HBoxContainer/CenterContainer/CardSizedContainer" instance=ExtResource("6_r4riq")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CenterContainer" type="CenterContainer" parent="VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 2
+
+[node name="CardSizedContainer" parent="VBoxContainer/HBoxContainer2/CenterContainer" instance=ExtResource("6_2obkm")]
+layout_mode = 2
+
+[node name="DrawPile" parent="VBoxContainer/HBoxContainer2/CenterContainer/CardSizedContainer" instance=ExtResource("5_w2rrx")]
+layout_mode = 1
+anchors_preset = 15
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+size_flags_horizontal = 2
+
+[node name="CenterContainer2" type="CenterContainer" parent="VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CardSizedContainer" parent="VBoxContainer/HBoxContainer2/CenterContainer2" instance=ExtResource("6_2obkm")]
+layout_mode = 2
+
+[node name="PlayArea" parent="VBoxContainer/HBoxContainer2/CenterContainer2/CardSizedContainer" instance=ExtResource("4_2obkm")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 6
+size_flags_vertical = 4
+
+[node name="Spacer" type="Control" parent="VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CenterContainer2" type="CenterContainer" parent="VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CardSizedContainer" parent="VBoxContainer/HBoxContainer3/CenterContainer2" instance=ExtResource("6_2obkm")]
+layout_mode = 2
+
+[node name="PlayerTrickPile" parent="VBoxContainer/HBoxContainer3/CenterContainer2/CardSizedContainer" instance=ExtResource("6_r4riq")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+
+[node name="CardSizedContainer2" parent="VBoxContainer" instance=ExtResource("6_2obkm")]
+layout_mode = 2
+
+[node name="PlayerHand" parent="VBoxContainer/CardSizedContainer2" instance=ExtResource("3_r4riq")]
+layout_mode = 1
+size_flags_horizontal = 4
+size_flags_vertical = 8
 _isPlayerHand = true
-
-[node name="EnemyHand" parent="." instance=ExtResource("3_r4riq")]
-position = Vector2(180, 79)
-_debugMode = true
-
-[node name="PlayerTrickPile" parent="." instance=ExtResource("6_r4riq")]
-position = Vector2(280, 351)
-
-[node name="EnemyTrickPile" parent="." instance=ExtResource("6_r4riq")]
-position = Vector2(284, 184)
-
-[node name="PlayArea" parent="." instance=ExtResource("4_2obkm")]
-position = Vector2(138, 266)
-
-[node name="DrawPile" parent="." instance=ExtResource("5_w2rrx")]
-position = Vector2(20, 264)

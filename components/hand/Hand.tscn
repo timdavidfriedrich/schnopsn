@@ -2,17 +2,22 @@
 
 [ext_resource type="Script" uid="uid://ove3sqxoudnh" path="res://components/hand/Hand.cs" id="1_15m3w"]
 
-[node name="Hand" type="Node2D" node_paths=PackedStringArray("_cardContainer")]
-script = ExtResource("1_15m3w")
-_cardContainer = NodePath("CardContainer")
-
-[node name="CardContainer" type="HBoxContainer" parent="."]
+[node name="Hand" type="Control" node_paths=PackedStringArray("_cardContainer")]
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-size_flags_vertical = 8
+script = ExtResource("1_15m3w")
+_cardContainer = NodePath("CardContainer")
 
-[node name="ColorRect" type="ColorRect" parent="CardContainer"]
-layout_mode = 2
+[node name="CardContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 8

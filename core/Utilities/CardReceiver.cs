@@ -3,7 +3,7 @@ namespace Schnopsn.core.Utilities;
 using Godot;
 using Schnopsn.components.card;
 
-public partial class CardReceiver : Node2D
+public partial class CardReceiver : Control
 {
     [Signal]
     public delegate void CardPositionedEventHandler(Card card);

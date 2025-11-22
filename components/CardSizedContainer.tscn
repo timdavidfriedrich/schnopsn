@@ -1,0 +1,14 @@
+[gd_scene load_steps=0 format=3 uid="uid://bwpix0hpllui0"]
+
+[node name="CardSizedContainer" type="Control"]
+custom_minimum_size = Vector2(59, 92)
+layout_mode = 3
+anchor_left = 0.027
+anchor_top = 0.024
+anchor_right = 0.027
+anchor_bottom = 0.024
+offset_left = -29.16
+offset_top = -46.08
+offset_right = 29.84
+offset_bottom = 45.92
+pivot_offset = Vector2(29.5, 46)
