@@ -189,7 +189,7 @@ public partial class Game : Panel
 
 	private async void OnHandWantsToPlayCard(Card card, Hand hand)
 	{
-		if (card.State != CardState.InHand && card.State != CardState.Selected)
+		if (card.State != CardState.Idle && card.State != CardState.Selected)
 		{
 			GD.PrintErr("Attempted to play a card that is not in hand nor selected!");
 			return;

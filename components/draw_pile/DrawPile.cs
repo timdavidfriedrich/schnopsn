@@ -33,6 +33,7 @@ public partial class DrawPile : CardReceiver
 			if (receivedCard == card)
 			{
 				ApplyPilePositioning(card);
+				card.State = CardState.Idle;
 				CardPositioned -= OnCardPositionedHandler;
 			}
 		}

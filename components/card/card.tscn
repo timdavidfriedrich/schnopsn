@@ -3,9 +3,10 @@
 [ext_resource type="Script" uid="uid://calhgpdevs4qx" path="res://components/card/Card.cs" id="1_6u4wf"]
 [ext_resource type="Texture2D" uid="uid://ccg7ife3qkdhm" path="res://components/card/assets/schellen_unter.png" id="1_d81rb"]
 
-[node name="Card" type="TextureRect"]
+[node name="Card" type="TextureRect" node_paths=PackedStringArray("_shadow")]
+z_index = 1
 custom_minimum_size = Vector2(59, 92)
-anchors_preset = -1
+anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -23,3 +24,20 @@ texture = ExtResource("1_d81rb")
 expand_mode = 1
 stretch_mode = 5
 script = ExtResource("1_6u4wf")
+_shadow = NodePath("Shadow")
+
+[node name="Shadow" type="TextureRect" parent="."]
+modulate = Color(0, 0, 0, 0.19607843)
+z_as_relative = false
+custom_minimum_size = Vector2(59, 92)
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 8.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_d81rb")
+expand_mode = 1
+stretch_mode = 4

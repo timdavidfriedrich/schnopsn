@@ -25,6 +25,8 @@ public partial class TrickPile : CardReceiver
 		{
 			card.FaceDown();
 		}
+
+		card.State = CardState.Played;
 	}
 
     private void RotateAndFlipCard(int index, Card card)

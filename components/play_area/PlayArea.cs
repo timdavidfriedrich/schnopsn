@@ -30,7 +30,8 @@ public partial class PlayArea : CardReceiver
 	{
 		_cardsInPlay.Add(card);
 		base.ReceiveCard(card);
-		
+		card.FaceUp();
+
 		CardPositioned += (receivedCard) => 
 		{
 			if (receivedCard == card)
@@ -42,11 +43,11 @@ public partial class PlayArea : CardReceiver
 
 	private void FinalizeCardInPlayArea(Card card)
 	{
-		card.FaceUp();
-		if (_cardsInPlay.Count == 2)
+		if (_cardsInPlay.Count >= 2)
 		{
 			EmitSignal(SignalName.BothCardsPlayed, _cardsInPlay.ToArray());
 			_cardsInPlay.Clear();
 		}
+		card.State = CardState.Played;
 	}
 }

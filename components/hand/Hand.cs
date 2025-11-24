@@ -56,7 +56,7 @@ public partial class Hand : CardReceiver
 	private void FinalizeCardInHand(Card card, Control placeholder)
 	{
 		card.Placeholder = placeholder;
-		card.State = CardState.InHand;
+		card.State = CardState.Idle;
 		if (_isPlayerHand || _debugMode)
 		{
 			card.FaceUp();
@@ -77,7 +77,7 @@ public partial class Hand : CardReceiver
 
 	private void OnCardClicked(Card clickedCard)
 	{
-		if (clickedCard.State == CardState.InHand)
+		if (clickedCard.State == CardState.Idle)
 		{
 			_selectedCard?.Deselect();
 			_selectedCard = clickedCard;
@@ -128,7 +128,7 @@ public partial class Hand : CardReceiver
     {
 		if (_cardPlaceholders.Count == 0) return;
 
-		var card = _cardPlaceholders.Keys.FirstOrDefault(c => c.State == CardState.InHand);
+		var card = _cardPlaceholders.Keys.FirstOrDefault(c => c.State == CardState.Idle);
 		if (card == null) return;
 		RemoveCard(card);
 		EmitSignal(SignalName.WantsToPlayCard, card, this);
