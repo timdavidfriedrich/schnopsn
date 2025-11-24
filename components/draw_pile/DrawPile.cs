@@ -76,8 +76,8 @@ public partial class DrawPile : CardReceiver
 	private void Add90DegreeRotation(Card card)
 	{
 		float minus90Degrees = -90f;
-		Vector2 cardRightSideQuarter = new(card.Size.X, card.Size.Y / 4);
-		AddRotation(card, minus90Degrees, cardRightSideQuarter);
+		Vector2 cardRightSideOffset = new(card.Size.X, (card.Size.Y - card.Size.X) / 2);
+		AddRotation(card, minus90Degrees, cardRightSideOffset);
 	}
 
 	private void AddRandomRotation(Card card)
