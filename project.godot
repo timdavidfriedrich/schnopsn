@@ -15,6 +15,10 @@ run/main_scene="uid://c41phke27qcnw"
 config/features=PackedStringArray("4.5", "C#", "Mobile")
 config/icon="res://icon.svg"
 
+[autoload]
+
+BummerlManager="*res://core/BummerlManager.cs"
+
 [display]
 
 window/size/viewport_width=1080

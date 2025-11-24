@@ -7,6 +7,8 @@ namespace Schnopsn.core.Utilities
 {
     public static class Rules
     {
+        public static readonly int INITIAL_BUMMERL = 7;
+
         public static int Points(CardValue v) => v switch
         {
             CardValue.sau => 11,

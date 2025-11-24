@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using Schnopsn.components.trick_pile;
 using System.Threading.Tasks;
 using System.Linq;
-
+using Schnopsn.Components.bummerl;
 
 public partial class Game : Panel
 {
@@ -26,12 +26,18 @@ public partial class Game : Panel
 	[Export]
 	private TrickPile _enemyTrickPile;
 	[Export]
+	private BummerlCounter _playerBummerlCounter;
+	[Export]
+	private BummerlCounter _enemyBummerlCounter;
+	[Export]
 	private PlayArea _playArea;
 	[Export]
 	private DrawPile _drawPile;
 
 	[Export]
 	private PackedScene _cardScene;
+
+	private BummerlManager _bummerlManager;
 
 	private Card[] _cards;
 
@@ -47,16 +53,11 @@ public partial class Game : Panel
 
 	private bool _isFirstCardofTrick = true;
 
-	private static int _playerBummerl = 0;
-	private static int _enemyBummerl = 0;
-
-	[Export]
-	private Label _playerBummerlLabel;
-	[Export]
-	private Label _enemyBummerlLabel;
 
 	public override async void _Ready()
 	{
+		InitBummerlFromLastRound();
+
 		SubscribeToSignals();
 
 		CreateAndShuffleCards();
@@ -77,6 +78,18 @@ public partial class Game : Panel
 	{
 		UnsubscribeFromSignals();
 	}
+
+	private void InitBummerlFromLastRound()
+    {
+		_bummerlManager = BummerlManager.Instance;
+		if (_bummerlManager == null)
+		{
+			GD.PrintErr("BummerlManager instance not found!");
+			return;
+		}
+		_playerBummerlCounter.Value = _bummerlManager.PlayerBummerl;
+		_enemyBummerlCounter.Value = _bummerlManager.EnemyBummerl;
+    }
 
 	private void SubscribeToSignals()
 	{
@@ -298,17 +311,15 @@ public partial class Game : Panel
 
 		if (playerWonGame)
 		{
-			_playerBummerl++;      // oder _enemyBummerl++, je nachdem wie du "Bummerl" definierst
-			GD.Print($"Player wins the game! Bummerl – Player: {_playerBummerl}, Enemy: {_enemyBummerl}");
-			UpdateBummerlUi();
+			// TODO: Reduce 1, 2 or 3 Bummerl depending on enemy's score
+			_bummerlManager.ReducePlayerBummerl(1);
 			ResetGame();
 			return;
 		}
 		else if (enemyWonGame)
 		{
-			_enemyBummerl++;
-			GD.Print($"Enemy wins the game! Bummerl – Player: {_playerBummerl}, Enemy: {_enemyBummerl}");
-			UpdateBummerlUi();
+			// TODO: Reduce 1, 2 or 3 Bummerl depending on player's score
+			_bummerlManager.ReduceEnemyBummerl(1);
 			ResetGame();
 			return;
 		}
@@ -330,16 +341,6 @@ public partial class Game : Panel
 
 	}
 
-	private void UpdateBummerlUi()
-	{
-		GD.Print($"Bummerl – Player: {_playerBummerl}, Enemy: {_enemyBummerl}");
-
-		if (_playerBummerlLabel != null)
-			_playerBummerlLabel.Text = _playerBummerl.ToString();
-		if (_enemyBummerlLabel != null)
-			_enemyBummerlLabel.Text = _enemyBummerl.ToString();
-	}
-
 	private void ResetGame()
 	{
 		GD.Print("Resetting game...");
@@ -359,4 +360,3 @@ public partial class Game : Panel
 	}
 
 }
-	

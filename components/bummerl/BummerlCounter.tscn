@@ -1,0 +1,15 @@
+[gd_scene load_steps=4 format=3 uid="uid://dg6fkm22fgx3k"]
+
+[ext_resource type="Texture2D" uid="uid://dq2wg67ju24d8" path="res://components/bummerl/assets/bummerl_bar.png" id="1_k61qk"]
+[ext_resource type="Texture2D" uid="uid://d15na5wo2q7uo" path="res://components/bummerl/assets/bummerl_marbles.png" id="2_tkxea"]
+[ext_resource type="Script" uid="uid://c4swkc1td2uth" path="res://components/bummerl/BummerlCounter.cs" id="3_h51nl"]
+
+[node name="BummerlCounter" type="TextureProgressBar"]
+offset_right = 126.0
+offset_bottom = 16.0
+max_value = 7.0
+value = 7.0
+rounded = true
+texture_under = ExtResource("1_k61qk")
+texture_progress = ExtResource("2_tkxea")
+script = ExtResource("3_h51nl")
