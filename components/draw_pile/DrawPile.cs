@@ -9,18 +9,10 @@ public partial class DrawPile : CardReceiver
 {
 	private readonly List<Card> _cards = [];
 
-	private const float _maxRotationDegrees = 12f;
 	private const float _cardOffsetX = 0.5f;
 	private const float _cardOffsetY = 0.3f;
 	public int CardCount => _cards.Count;
 
-
-	private RandomNumberGenerator _random = new();
-
-	public override void _Ready()
-	{
-		_random.Randomize();
-	}
 
 	public override void ReceiveCard(Card card)
 	{
@@ -65,39 +57,13 @@ public partial class DrawPile : CardReceiver
 
 		if (cardIndex == 0) {
 			card.FaceUp();
-			Add90DegreeRotation(card);
+			card.Add90DegreeRotation();
 		}
 		else
         {
 			card.FaceDown();
-			AddRandomRotation(card);
+			card.AddRandomRotation();
         }
-	}
-
-	private void Add90DegreeRotation(Card card)
-	{
-    	float minus90Degrees = -90f;
-		Vector2 pivotOffset = new(
-			card.Size.X * 0.75f,
-			card.Size.Y / 2f - card.Size.X / 4f
-		);
-		AddRotation(card, minus90Degrees, pivotOffset);
-	}
-
-	private void AddRandomRotation(Card card)
-    {
-		float randomDegrees = _random.Randf() * _maxRotationDegrees - (_maxRotationDegrees / 2f);
-		Vector2 cardCenter = new(card.Size.X / 2, card.Size.Y / 2);
-		AddRotation(card, randomDegrees, cardCenter);
-    }
-
-	private void AddRotation(Card card, float rotation, Vector2? pivotOffset = null)
-	{
-		card.PivotOffset = pivotOffset ?? new Vector2(card.Size.X / 2, card.Size.Y / 2);
-		var tween = GetTree().CreateTween();
-		tween.TweenProperty(card, "rotation_degrees", rotation, 0.3)
-			.SetTrans(Tween.TransitionType.Quad)
-			.SetEase(Tween.EaseType.Out);
 	}
 
 	public Card DrawCard()
@@ -111,7 +77,7 @@ public partial class DrawPile : CardReceiver
 		if (topCard.IsFaceUp)
         {
 			topCard.FaceDown();
-			AddRandomRotation(topCard);
+			topCard.AddRandomRotation();
         }
 
 		return topCard;

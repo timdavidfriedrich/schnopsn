@@ -53,7 +53,6 @@ layout_mode = 2
 [node name="EnemyHand" parent="VBoxContainer/CardSizedContainer" instance=ExtResource("3_r4riq")]
 layout_mode = 1
 size_flags_horizontal = 4
-metadata/_edit_use_anchors_ = true
 
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2

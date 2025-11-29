@@ -31,6 +31,7 @@ public partial class PlayArea : CardReceiver
 		_cardsInPlay.Add(card);
 		base.ReceiveCard(card);
 		card.FaceUp();
+        card.AddRandomRotation();
 
 		CardPositioned += (receivedCard) => 
 		{

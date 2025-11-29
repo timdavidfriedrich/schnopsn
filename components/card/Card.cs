@@ -1,10 +1,8 @@
 namespace Schnopsn.components.card;
 
-using System;
-using System.Drawing;
-using System.Runtime.ConstrainedExecution;
-using System.Threading.Tasks;
 using Godot;
+using System.Drawing;
+using System.Threading.Tasks;
 
 
 public partial class Card : TextureRect
@@ -35,6 +33,9 @@ public partial class Card : TextureRect
     private const double _duration = 0.15;
     private const float _selectedScaleMultiplier = 1.25f;
     private const float _selectedPositionOffset = 10.0f;
+	private const float _maxRotationDegrees = 12f;
+
+    private Vector2 _viewportCenter;
 
     private float _currentVerticalOffset = 1.0f;
     private float _currentMaxHorizontalOffset = 1.0f;
@@ -44,6 +45,9 @@ public partial class Card : TextureRect
     private int _originalShadowZIndex;
     private int _zIndexOffset = 69;
     private int _shadowZIndexOffset = 42;
+
+    private RandomNumberGenerator _random = new();
+
 
     public Card WithData(CardColor color, CardValue value)
     {
@@ -59,6 +63,8 @@ public partial class Card : TextureRect
 
     public override void _Ready()
     {
+        _random.Randomize();
+        _viewportCenter = GetViewportRect().Size / 2.0f;
         _originalPosition = Position;
         _originalScale = Scale;
         MouseFilter = MouseFilterEnum.Stop;
@@ -68,7 +74,6 @@ public partial class Card : TextureRect
 
     public override void _Process(double delta)
     {
-        AnimatePosition(delta);
         HandleShadow();
     }
 
@@ -107,8 +112,7 @@ public partial class Card : TextureRect
     private void HandleShadow()
     {
         Vector2 cardCenter = GlobalPosition + (Size / 2f);
-        Vector2 viewportCenter = GetViewportRect().Size / 2.0f;
-        float distanceToViewportCenter = cardCenter.X - viewportCenter.X;
+        float distanceToViewportCenter = cardCenter.X - _viewportCenter.X;
 
         float targetMaxHorizontalOffset = State switch
         {
@@ -143,33 +147,16 @@ public partial class Card : TextureRect
         float horizontalOffset = Mathf.Lerp(
             0.0f, 
             -Mathf.Sign(distanceToViewportCenter) * _currentMaxHorizontalOffset, 
-            Mathf.Abs(distanceToViewportCenter / viewportCenter.X)
+            Mathf.Abs(distanceToViewportCenter / _viewportCenter.X)
         );
         
         float rotationRad = Rotation;
-        Vector2 localOffset = new Vector2(
+        Vector2 localOffset = new(
             horizontalOffset * Mathf.Cos(-rotationRad) - _currentVerticalOffset * Mathf.Sin(-rotationRad),
             horizontalOffset * Mathf.Sin(-rotationRad) + _currentVerticalOffset * Mathf.Cos(-rotationRad)
         );
         
         _shadow.Position = localOffset;
-    }
-
-    private void AnimatePosition(double delta)
-    {
-        if (IsInstanceValid(Placeholder) && (State == CardState.Idle || State == CardState.Selected))
-        {
-            GlobalPosition = GlobalPosition.Lerp(Placeholder.GlobalPosition, (float)delta * _followSpeed);
-        }
-        else if (State == CardState.Transitioning)
-        {
-            // Do nothing, the card is being played and should not follow anything
-        }
-        else
-        {
-            Position = Position.Lerp(_originalPosition, (float)delta * _followSpeed);
-            Scale = Scale.Lerp(_originalScale, (float)delta * _followSpeed);
-        }
     }
 
     public override void _GuiInput(InputEvent @event)
@@ -223,5 +210,31 @@ public partial class Card : TextureRect
         tween.TweenProperty(this, "scale", _originalScale, _duration).SetTrans(Tween.TransitionType.Quad);
         Placeholder = null;
     }
+
+    public void Add90DegreeRotation()
+	{
+    	float minus90Degrees = -90f;
+		Vector2 pivotOffset = new(
+			Size.X * 0.75f,
+			Size.Y / 2f - Size.X / 4f
+		);
+		AddRotation(minus90Degrees, pivotOffset);
+	}
+
+    public void AddRandomRotation()
+    {
+		float randomDegrees = _random.Randf() * _maxRotationDegrees - (_maxRotationDegrees / 2f);
+		Vector2 cardCenter = new(Size.X / 2, Size.Y / 2);
+		AddRotation(randomDegrees, cardCenter);
+    }
+
+	private void AddRotation(float rotation, Vector2? pivotOffset = null)
+	{
+		PivotOffset = pivotOffset ?? new Vector2(Size.X / 2, Size.Y / 2);
+		var tween = GetTree().CreateTween();
+		tween.TweenProperty(this, "rotation_degrees", rotation, 0.3)
+			.SetTrans(Tween.TransitionType.Quad)
+			.SetEase(Tween.EaseType.Out);
+	}
 }
 
