@@ -26,6 +26,10 @@ public partial class Game : Panel
 	[Export]
 	private TrickPile _enemyTrickPile;
 	[Export]
+	private TrickPileScore _playerTrickPileScore;
+	[Export]
+	private TrickPileScore _enemyTrickPileScore;
+	[Export]
 	private BummerlCounter _playerBummerlCounter;
 	[Export]
 	private BummerlCounter _enemyBummerlCounter;
@@ -289,12 +293,14 @@ public partial class Game : Panel
 		if (winner.isPlayerCard)
 		{
 			_playerScore += Rules.Points(cards[0].Value) + Rules.Points(cards[1].Value);
+			_playerTrickPileScore.SetScore(_playerScore);
 			DealCardsToHand(_playerHand, 1);
 			DealCardsToHand(_enemyHand, 1);
 		}
 		else
 		{
 			_enemyScore += Rules.Points(cards[0].Value) + Rules.Points(cards[1].Value);
+			_enemyTrickPileScore.SetScore(_enemyScore);
 			DealCardsToHand(_enemyHand, 1);
 			DealCardsToHand(_playerHand, 1);
 		}
