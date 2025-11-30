@@ -136,9 +136,28 @@ public partial class Game : Panel
 
 	private void SetTrump()
 	{
-		trumpCard = _drawPile.DrawCard();
+		trumpCard = _drawPile.PeekBottomCard();
+		if (trumpCard == null)
+		{
+			GD.PrintErr("No cards in draw pile to set trump!");
+			return;
+		}
+
 		trumpColor = trumpCard.Color;
-		_drawPile.ReceiveCard(trumpCard);
+
+		// Trumpfkarte aufdecken
+		trumpCard.FaceUp();
+
+		// Leicht aus dem Stapel rausschieben – hier kannst du
+		// mit den Werten spielen, bis es genau so aussieht wie in deinem Wunsch-Screenshot
+		var talonPos = _drawPile.GlobalPosition;
+		var offset = new Vector2(10, 20); // z.B. 10px rechts, 20px runter
+		trumpCard.GlobalPosition = talonPos + offset;
+
+		// Über dem Stapel zeichnen lassen
+		trumpCard.ZAsRelative = false;
+		trumpCard.ZIndex = _drawPile.ZIndex + 1;
+
 		GD.Print($"Trumpf ist {trumpColor} {trumpCard.Value}.");
 	}
 
@@ -207,34 +226,39 @@ public partial class Game : Panel
 			&& _drawPile.CardCount > 2              // richtiger Talon-Count
 			&& _drawPile.ContainsCard(trumpCard))   // Trumpfkarte liegt noch im Talon
 		{
-			// Unter auf den Nachziehstapel legen (als neue offene Trumpfkarte)
-			_drawPile.ReceiveCard(card);
+			// 1) alte Trumpf-Daten merken
+			var oldTrumpColor = trumpCard.Color;
+			var oldTrumpValue = trumpCard.Value;
 
-			// Alte Trumpfkarte aus dem Talon entfernen (nur aus der internen Liste)
-			_drawPile.RemoveCard(trumpCard);
+			// 2) Trumpfkarte im Talon bekommt Daten vom Unter
+			trumpCard.WithData(card.Color, card.Value);
+			trumpCard.FaceUp();
 
-			// Alte Trumpfkarte in die Hand des Spielers geben
-			hand.ReceiveCard(trumpCard);
+			// 3) Karte in der Hand bekommt die alten Trumpf-Daten
+			card.WithData(oldTrumpColor, oldTrumpValue);
+			card.FaceUp();
 
-			// Neue "sichtbare" Trumpfkarte ist jetzt der Unter
-			trumpCard = card;
+			// 4) Auswahl zurücksetzen – Karte bleibt in der Hand!
+			card.Deselect();          // State -> Idle + Animation
+			hand.OnTouchOutside();    // _selectedCard = null
 
 			GD.Print($"{(hand == _playerHand ? "Player" : "Enemy")} performed Unter swap!");
 
 			if (hand == _enemyHand)
 			{
-				// kurz warten, damit die neue Trumpfkarte in der Hand ankommt
 				await ToSignal(GetTree().CreateTimer(0.3f), Timer.SignalName.Timeout);
-
-				// jetzt eine echte Karte spielen lassen
 				_enemyHand.PlayAnyCard();
 			}
 
-			// WICHTIG:
-			// Kein Ausspielen in die PlayArea – das war nur ein Tausch.
-			// Der Spieler muss danach eine Karte normal spielen.
+			// Nur Tausch, KEIN Ausspielen
 			return;
 		}
+
+		// --- AB HIER: Karte wird wirklich gespielt ---
+
+		// Jetzt erst aus der Hand entfernen
+		hand.RemoveCard(card);
+		hand.OnTouchOutside(); // Auswahl sicher weg
 
 		if (hand.CheckAnsage(card))
 		{
@@ -244,14 +268,13 @@ public partial class Game : Panel
 			{
 				_playerExtraPoints += extrapoints;
 				GD.Print($"Player announced {extrapoints} extra points!");
-				//todo check game end
 			}
 			else
 			{
 				_enemyExtraPoints += extrapoints;
 				GD.Print($"Enemy announced {extrapoints} extra points!");
-				//todo check game end
 			}
+			UpdateScoreUi();
 		}
 
 		bool isFirstCardofTrick = _isFirstCardofTrick;
@@ -289,21 +312,20 @@ public partial class Game : Panel
 		}
 
 
-
 		if (winner.isPlayerCard)
 		{
 			_playerScore += Rules.Points(cards[0].Value) + Rules.Points(cards[1].Value);
-			_playerTrickPileScore.SetScore(_playerScore);
 			DealCardsToHand(_playerHand, 1);
 			DealCardsToHand(_enemyHand, 1);
 		}
 		else
 		{
 			_enemyScore += Rules.Points(cards[0].Value) + Rules.Points(cards[1].Value);
-			_enemyTrickPileScore.SetScore(_enemyScore);
 			DealCardsToHand(_enemyHand, 1);
 			DealCardsToHand(_playerHand, 1);
 		}
+
+		UpdateScoreUi();
 
 		int totalPlayerPoints = _playerScore + _playerExtraPoints;
 		int totalEnemyPoints = _enemyScore + _enemyExtraPoints;
@@ -364,5 +386,19 @@ public partial class Game : Panel
 			}
 		}
 	}
+
+	private void UpdateScoreUi()
+	{
+		int totalPlayerPoints = _playerScore + _playerExtraPoints;
+		int totalEnemyPoints = _enemyScore + _enemyExtraPoints;
+
+		// 0-Stich-Regel berücksichtigen, wenn du das auch in der UI willst:
+		if (_playerScore == 0) totalPlayerPoints = 0;
+		if (_enemyScore == 0) totalEnemyPoints = 0;
+
+		_playerTrickPileScore.SetScore(totalPlayerPoints);
+		_enemyTrickPileScore.SetScore(totalEnemyPoints);
+	}
+
 
 }

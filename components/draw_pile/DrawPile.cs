@@ -82,4 +82,13 @@ public partial class DrawPile : CardReceiver
 
 		return topCard;
 	}
+
+	public Card PeekBottomCard()
+	{
+		if (_cards.Count == 0)
+			return null;
+
+		return _cards[0]; // unterste Karte im Stapel
+	}
+
 }

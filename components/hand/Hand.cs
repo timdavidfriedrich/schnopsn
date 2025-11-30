@@ -168,8 +168,8 @@ public partial class Hand : CardReceiver
         }
         else if (clickedCard.State == CardState.Selected)
         {
-            _selectedCard = null;
-            RemoveCard(clickedCard);
+            // _selectedCard = null;
+            // RemoveCard(clickedCard);
             EmitSignal(SignalName.WantsToPlayCard, clickedCard, this);
         }
     }
