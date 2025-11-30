@@ -63,7 +63,10 @@ public partial class Game : Panel
 	private int _enemyPointsAtClose = 0;
 	private bool _playerHadTrickAtClose = false;
 	private bool _enemyHadTrickAtClose = false;
+	private Card _currentLeadCard = null;
+	private Hand _currentLeadHand = null;
 
+	private bool IsEndgamePhase => _isTalonClosed || _drawPile.CardCount == 0;
 
 	public override async void _Ready()
 	{
@@ -230,53 +233,55 @@ public partial class Game : Panel
 			return;
 		}
 
-		// --- Trumpf-Unter-Tausch ---
-		// Wenn der Spieler den Trumpf-Unter "spielt" und noch > 2 Karten im Talon sind,
-		// darf er den Unter gegen die aufgedeckte Trumpfkarte tauschen.
+		// --- Trumpf-Unter-Tausch (wie bisher) ---
 		if (!_isTalonClosed
-			&&card.Color == trumpColor
+			&& card.Color == trumpColor
 			&& card.Value == CardValue.unter
-			&& _drawPile.CardCount > 2              // richtiger Talon-Count
-			&& _drawPile.ContainsCard(trumpCard))   // Trumpfkarte liegt noch im Talon
+			&& trumpCard.Value != CardValue.unter
+			&& _drawPile.CardCount > 2
+			&& _drawPile.ContainsCard(trumpCard))
 		{
-			// 1) alte Trumpf-Daten merken
+			// (Untertausch-Logik unverändert)
 			var oldTrumpColor = trumpCard.Color;
 			var oldTrumpValue = trumpCard.Value;
 
-			// 2) Trumpfkarte im Talon bekommt Daten vom Unter
 			trumpCard.WithData(card.Color, card.Value);
 			trumpCard.FaceUp();
 
-			// 3) Karte in der Hand bekommt die alten Trumpf-Daten
 			card.WithData(oldTrumpColor, oldTrumpValue);
 			card.FaceUp();
 
-			// 4) Auswahl zurücksetzen – Karte bleibt in der Hand!
-			card.Deselect();          // State -> Idle + Animation
-			hand.OnTouchOutside();    // _selectedCard = null
+			card.Deselect();
+			hand.OnTouchOutside();
 
 			GD.Print($"{(hand == _playerHand ? "Player" : "Enemy")} performed Unter swap!");
 
 			if (hand == _enemyHand)
 			{
 				await ToSignal(GetTree().CreateTimer(0.3f), Timer.SignalName.Timeout);
-				_enemyHand.PlayAnyCard();
+				// Gegner soll danach eine Karte spielen
+				PlayEnemyTurnSecondCardIfNeeded();
 			}
 
-			// Nur Tausch, KEIN Ausspielen
 			return;
 		}
 
-		// --- AB HIER: Karte wird wirklich gespielt ---
+		// --- NEU: Legalitätscheck vor dem Entfernen aus der Hand ---
+		if (!IsPlayLegal(hand, card))
+		{
+			GD.Print("Illegal move prevented (Farb-/Stich-/Trumpfzwang).");
+			// Karte bleibt einfach in der Hand; bei Spieler kann man zusätzlich UI machen.
+			return;
+		}
 
-		// Jetzt erst aus der Hand entfernen
+		// Karte aus der Hand nehmen erst NACH Bestehen des Checks
 		hand.RemoveCard(card);
 		hand.OnTouchOutside(); // Auswahl sicher weg
 
+		// Ansage-Logik wie bisher
 		if (_isFirstCardofTrick && hand.CheckAnsage(card))
 		{
-			int extrapoints = 20;
-			if (card.Color == trumpColor) extrapoints = 40;
+			int extrapoints = (card.Color == trumpColor) ? 40 : 20;
 			if (hand == _playerHand)
 			{
 				_playerExtraPoints += extrapoints;
@@ -291,17 +296,19 @@ public partial class Game : Panel
 		}
 
 		bool isFirstCardofTrick = _isFirstCardofTrick;
-
 		if (_isFirstCardofTrick)
 		{
 			_isFirstCardofTrick = false;
+			_currentLeadCard = card;
+			_currentLeadHand = hand;
 		}
 
 		_playArea.ReceiveCard(card);
 
+		// Spieler eröffnet Stich -> Gegner spielt eine Karte
 		if (isFirstCardofTrick && hand == _playerHand)
 		{
-			_enemyHand.PlayAnyCard();
+			PlayEnemyTurn();
 		}
 	}
 
@@ -496,6 +503,8 @@ public partial class Game : Panel
 
 		// Neuen Stich vorbereiten
 		_isFirstCardofTrick = true;
+		_currentLeadCard = null;
+		_currentLeadHand = null;
 
 		// Wenn der Gegner den Stich gewonnen hat,
 		// soll der Gegner den nächsten Stich eröffnen.
@@ -505,7 +514,7 @@ public partial class Game : Panel
 
 			if (_enemyHand.HasCards)
 			{
-				_enemyHand.PlayAnyCard();
+				PlayEnemyTurn();
 			}
 		}
 
@@ -605,6 +614,146 @@ public partial class Game : Panel
 		if (loserTotalPoints == 0)      return 3; // Gegner kein Stich
 		if (loserTotalPoints < 33)      return 2; // Gegner < 33 Augen
 		return 1;                       // Gegner >= 33 Augen
+	}
+
+	private bool IsPlayLegal(Hand hand, Card card)
+	{
+		string who = (hand == _playerHand) ? "Player" : "Enemy";
+		GD.Print($"[LEGALITY] {who} wants to play {card.Color} {card.Value}");
+
+		// Vor Talonende / ohne Zudrehen: alles erlaubt
+		if (!IsEndgamePhase)
+		{
+			GD.Print("[LEGALITY] Talon offen -> freie Wahl erlaubt.");
+			return true;
+		}
+
+		// Erste Karte des Stiches: immer legal
+		if (_isFirstCardofTrick || _currentLeadCard == null)
+		{
+			GD.Print("[LEGALITY] Erste Karte des Stiches -> freie Wahl erlaubt.");
+			return true;
+		}
+
+		// Wir sind beim zweiten Spieler des Stiches
+		var lead = _currentLeadCard;
+		GD.Print($"[LEGALITY] Lead card: {lead.Color} {lead.Value}");
+
+		// Alle Handkarten, die aktuell spielbar sind
+		var allCards = hand.CardsInHand
+			.Where(c => c.State == CardState.InHand || c.State == CardState.Selected)
+			.ToList();
+
+		// 1) Farbzwang
+		var sameSuitCards = allCards.Where(c => c.Color == lead.Color).ToList();
+		if (sameSuitCards.Any())
+		{
+			GD.Print("[LEGALITY] Spieler hat Karten in der angespielten Farbe.");
+
+			// Farbe muss bedient werden
+			if (card.Color != lead.Color)
+			{
+				GD.PrintErr($"[LEGALITY] ILLEGAL: Muss Farbe bedienen ({lead.Color}), spielt aber {card.Color}.");
+				return false;
+			}
+
+			// Stichzwang innerhalb derselben Farbe
+			int leadRank = Rules.Rank(lead.Value);
+			var higherSameSuit = sameSuitCards
+				.Where(c => Rules.Rank(c.Value) > leadRank)
+				.ToList();
+
+			if (higherSameSuit.Any())
+			{
+				GD.Print("[LEGALITY] Spieler hat höhere Karten derselben Farbe -> Stichzwang aktiv.");
+
+				if (Rules.Rank(card.Value) <= leadRank)
+				{
+					GD.PrintErr($"[LEGALITY] ILLEGAL: Muss stechen (höhere Karte spielen), spielt aber nicht höher.");
+					return false;
+				}
+
+				GD.Print("[LEGALITY] Legal: Spieler bedient Farbe und sticht höher.");
+				return true;
+			}
+
+			GD.Print("[LEGALITY] Legal: Spieler bedient Farbe, kein Stichzwang.");
+			return true;
+		}
+
+
+		// 2) Trumpfzwang
+		var trumps = allCards.Where(c => c.Color == trumpColor).ToList();
+		if (trumps.Any())
+		{
+			GD.Print($"[LEGALITY] Spieler hat keinen {lead.Color}, aber hat Trumpf -> Trumpfzwang aktiv.");
+
+			if (card.Color != trumpColor)
+			{
+				GD.PrintErr("[LEGALITY] ILLEGAL: Muss einen Trumpf spielen, spielt aber keinen Trumpf.");
+				return false;
+			}
+
+			GD.Print("[LEGALITY] Legal: Trumpf gespielt.");
+			return true;
+		}
+
+		// 3) Keine Farbe, kein Trumpf -> freie Wahl
+		GD.Print("[LEGALITY] Spieler hat weder Farbe noch Trumpf -> freie Wahl erlaubt.");
+		return true;
+	}
+
+
+	private void PlayEnemyTurn()
+	{
+		if (!_isTalonClosed && _drawPile.CardCount > 2 && _isFirstCardofTrick)
+		{
+			if (EnemyShouldCloseNow()) CloseTalon(false);
+		}
+
+		var card = ChooseCardForEnemy(_enemyHand);
+		if (card == null) return;
+
+		OnHandWantsToPlayCard(card, _enemyHand);
+	}
+
+
+	// Falls nach einem Untertausch der Gegner immer noch am Zug ist
+	private void PlayEnemyTurnSecondCardIfNeeded()
+	{
+		if (_isFirstCardofTrick)
+			return; // es wurde noch keine Karte gespielt
+
+		var card = ChooseCardForEnemy(_enemyHand);
+		if (card == null) return;
+
+		OnHandWantsToPlayCard(card, _enemyHand);
+	}
+
+	// EXTREM simple „KI“: nimm die erste legale Karte
+	private Card ChooseCardForEnemy(Hand enemyHand)
+	{
+		// Alle grob spielbaren Karten
+		var candidates = enemyHand.CardsInHand
+			.Where(c => c.State == CardState.InHand)
+			.ToList();
+
+		foreach (var c in candidates)
+		{
+			if (IsPlayLegal(enemyHand, c))
+				return c;
+		}
+
+		// Falls keine Karte legal ist (sollte nicht vorkommen),
+		// nehmen wir einfach die erste und lassen sie durchgehen.
+		return candidates.FirstOrDefault();
+	}
+
+	private bool EnemyShouldCloseNow()
+	{
+		// TODO: Hier später echte KI-Logik einbauen.
+		// Aktuell: niemals zudrehen.
+		return false;
 	}
 
 }

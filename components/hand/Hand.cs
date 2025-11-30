@@ -213,7 +213,16 @@ public partial class Hand : CardReceiver
 
         var card = _cardPlaceholders.Keys.FirstOrDefault(c => c.State == CardState.InHand);
         if (card == null) return;
-        RemoveCard(card);
+        
         EmitSignal(SignalName.WantsToPlayCard, card, this);
+    }
+
+    
+    public IEnumerable<Card> CardsInHand
+    {
+        get
+        {
+            return _cardPlaceholders.Keys;
+        }
     }
 }
