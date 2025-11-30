@@ -73,30 +73,26 @@ public partial class StartMenu : Panel
         var viewport = GetViewport();
         var viewportSize = viewport.GetVisibleRect().Size;
         
-        var gameScene = _gameScene.Instantiate<Node>();
-        GetTree().Root.AddChild(gameScene);
+        var coverPanel = new ColorRect();
+        coverPanel.Color = new Color(0.14901961f, 0.36078432f, 0.25882354f, 1f);
         
-        if (gameScene is Control gameControl)
-        {
-            gameControl.Position = new Vector2(0, -viewportSize.Y);
-        }
+        coverPanel.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+        coverPanel.Size = viewportSize;
+        coverPanel.ZIndex = -1;
         
-        var tween = GetTree().CreateTween();
-        tween.SetParallel(true);
+        GetTree().Root.AddChild(coverPanel);
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         
-        tween.TweenProperty(this, "position", new Vector2(0, viewportSize.Y), 0.5f)
-            .SetTrans(Tween.TransitionType.Quad)
-            .SetEase(Tween.EaseType.InOut);
-        
-        if (gameScene is Control gc)
-        {
-            tween.TweenProperty(gc, "position", Vector2.Zero, 0.5f)
-                .SetTrans(Tween.TransitionType.Quad)
-                .SetEase(Tween.EaseType.InOut);
-        }
+        var tween = GetTree().CreateTween();               
+        tween.TweenProperty(this, "global_position", new Vector2(0, viewportSize.Y), 0.75f)
+            .SetTrans(Tween.TransitionType.Cubic)
+            .SetEase(Tween.EaseType.In);
         
         await ToSignal(tween, Tween.SignalName.Finished);
         
-        QueueFree();
+        GD.Print(">>>> Transition finished");
+        
+        GetTree().ChangeSceneToPacked(_gameScene);
+        coverPanel.QueueFree();
     }
 }
