@@ -49,9 +49,11 @@ offset_bottom = -64.0
 grow_horizontal = 2
 grow_vertical = 2
 pivot_offset = Vector2(3208, 1833)
+mouse_filter = 2
 
 [node name="CardSizedContainer" parent="VBoxContainer" instance=ExtResource("6_2obkm")]
 layout_mode = 2
+mouse_filter = 2
 
 [node name="EnemyHand" parent="VBoxContainer/CardSizedContainer" instance=ExtResource("3_r4riq")]
 layout_mode = 1
@@ -60,10 +62,12 @@ size_flags_horizontal = 4
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+mouse_filter = 2
 
 [node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 2
 theme_override_constants/margin_top = 32
 
 [node name="EnemyBummerlCounter" parent="VBoxContainer/HBoxContainer/MarginContainer" instance=ExtResource("8_e5e06")]
@@ -73,9 +77,11 @@ size_flags_vertical = 0
 [node name="CenterContainer" type="CenterContainer" parent="VBoxContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+mouse_filter = 2
 
 [node name="CardSizedContainer" parent="VBoxContainer/HBoxContainer/CenterContainer" instance=ExtResource("6_2obkm")]
 layout_mode = 2
+mouse_filter = 2
 
 [node name="EnemyTrickPile" parent="VBoxContainer/HBoxContainer/CenterContainer/CardSizedContainer" instance=ExtResource("6_r4riq")]
 layout_mode = 1
@@ -93,13 +99,16 @@ layout_mode = 1
 [node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+mouse_filter = 2
 
 [node name="CenterContainer" type="CenterContainer" parent="VBoxContainer/HBoxContainer2"]
 layout_mode = 2
 size_flags_horizontal = 2
+mouse_filter = 2
 
 [node name="CardSizedContainer" parent="VBoxContainer/HBoxContainer2/CenterContainer" instance=ExtResource("6_2obkm")]
 layout_mode = 2
+mouse_filter = 2
 
 [node name="DrawPile" parent="VBoxContainer/HBoxContainer2/CenterContainer/CardSizedContainer" instance=ExtResource("5_w2rrx")]
 layout_mode = 1
@@ -113,9 +122,11 @@ size_flags_horizontal = 2
 [node name="CenterContainer2" type="CenterContainer" parent="VBoxContainer/HBoxContainer2"]
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 2
 
 [node name="CardSizedContainer" parent="VBoxContainer/HBoxContainer2/CenterContainer2" instance=ExtResource("6_2obkm")]
 layout_mode = 2
+mouse_filter = 2
 
 [node name="PlayArea" parent="VBoxContainer/HBoxContainer2/CenterContainer2/CardSizedContainer" instance=ExtResource("4_2obkm")]
 layout_mode = 1
@@ -130,10 +141,12 @@ size_flags_vertical = 4
 [node name="HBoxContainer3" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+mouse_filter = 2
 
 [node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/HBoxContainer3"]
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 2
 theme_override_constants/margin_bottom = 32
 
 [node name="PlayerBummerlCounter" parent="VBoxContainer/HBoxContainer3/MarginContainer" instance=ExtResource("8_e5e06")]
@@ -143,9 +156,11 @@ size_flags_vertical = 8
 [node name="CenterContainer2" type="CenterContainer" parent="VBoxContainer/HBoxContainer3"]
 layout_mode = 2
 size_flags_vertical = 3
+mouse_filter = 2
 
 [node name="CardSizedContainer" parent="VBoxContainer/HBoxContainer3/CenterContainer2" instance=ExtResource("6_2obkm")]
 layout_mode = 2
+mouse_filter = 2
 
 [node name="PlayerTrickPile" parent="VBoxContainer/HBoxContainer3/CenterContainer2/CardSizedContainer" instance=ExtResource("6_r4riq")]
 layout_mode = 1
@@ -162,6 +177,7 @@ layout_mode = 1
 
 [node name="CardSizedContainer2" parent="VBoxContainer" instance=ExtResource("6_2obkm")]
 layout_mode = 2
+mouse_filter = 2
 
 [node name="PlayerHand" parent="VBoxContainer/CardSizedContainer2" instance=ExtResource("3_r4riq")]
 layout_mode = 1

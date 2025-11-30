@@ -67,7 +67,6 @@ public partial class Card : TextureRect
         _viewportCenter = GetViewportRect().Size / 2.0f;
         _originalPosition = Position;
         _originalScale = Scale;
-        MouseFilter = MouseFilterEnum.Stop;
         _originalZIndex = ZIndex;
         _originalShadowZIndex = _shadow.ZIndex;
     }
@@ -161,20 +160,17 @@ public partial class Card : TextureRect
 
     public override void _GuiInput(InputEvent @event)
     {
-        if (State != CardState.Idle && State != CardState.Selected) return;
+        if (State != CardState.InHand && State != CardState.Selected) return;
 
         bool isTap = @event is InputEventScreenTouch touchEvent && touchEvent.Pressed;
-
-        if (isTap)
-        {
-            GetViewport().SetInputAsHandled();
-            EmitSignal(SignalName.Clicked, this);
-        }
+        if (!isTap) return;
+        EmitSignal(SignalName.Clicked, this);
+        AcceptEvent();
     }
 
     public void Select()
     {
-        if (State != CardState.Idle) return;
+        if (State != CardState.InHand) return;
         State = CardState.Selected;
 
         ZIndex = _zIndexOffset;
@@ -190,7 +186,7 @@ public partial class Card : TextureRect
     public void Deselect()
     {
         if (State != CardState.Selected) return;
-        State = CardState.Idle;
+        State = CardState.InHand;
 
         ZIndex = _originalZIndex;
         _shadow.ZIndex = _originalShadowZIndex;

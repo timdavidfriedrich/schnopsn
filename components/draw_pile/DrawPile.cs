@@ -7,6 +7,9 @@ using System.Collections.Generic;
 
 public partial class DrawPile : CardReceiver
 {
+	[Signal]
+	public delegate void DrawPileClickedEventHandler();
+
 	private readonly List<Card> _cards = [];
 
 	private const float _cardOffsetX = 0.5f;
@@ -91,4 +94,11 @@ public partial class DrawPile : CardReceiver
 		return _cards[0]; // unterste Karte im Stapel
 	}
 
+    public override void _GuiInput(InputEvent @event)
+    {
+		bool isTap = @event is InputEventScreenTouch touchEvent && touchEvent.Pressed;
+		if (!isTap) return;
+		EmitSignal(SignalName.DrawPileClicked);
+		AcceptEvent();
+    }
 }

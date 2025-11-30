@@ -62,7 +62,7 @@ public partial class Hand : CardReceiver
                 continue;
             }
 
-            if (card.State != CardState.Idle) continue;
+            if (card.State != CardState.InHand) continue;
 
             int cardIndex = placeholder.GetIndex();
             float distFromCenter = cardIndex - centerIndex;
@@ -89,7 +89,7 @@ public partial class Hand : CardReceiver
         {
             Card card = kvp.Key;
             // * Only reposition cards that are settled in the hand
-            if (card.State != CardState.Idle && card.State != CardState.Selected) continue;
+            if (card.State != CardState.InHand && card.State != CardState.Selected) continue;
             Vector2 targetPos = GetTargetPosition(card);
             card.GlobalPosition = card.GlobalPosition.Lerp(targetPos, delta * 15f);
         }
@@ -140,7 +140,7 @@ public partial class Hand : CardReceiver
     private void FinalizeCardInHand(Card card, Control placeholder)
     {
         card.Placeholder = placeholder;
-        card.State = CardState.Idle;
+        card.State = CardState.InHand;
         if (_isPlayerHand || _debugMode)
         {
             card.FaceUp();
@@ -160,7 +160,7 @@ public partial class Hand : CardReceiver
 
     private void OnCardClicked(Card clickedCard)
     {
-        if (clickedCard.State == CardState.Idle)
+        if (clickedCard.State == CardState.InHand)
         {
             _selectedCard?.Deselect();
             _selectedCard = clickedCard;
@@ -211,7 +211,7 @@ public partial class Hand : CardReceiver
     {
         if (_cardPlaceholders.Count == 0) return;
 
-        var card = _cardPlaceholders.Keys.FirstOrDefault(c => c.State == CardState.Idle);
+        var card = _cardPlaceholders.Keys.FirstOrDefault(c => c.State == CardState.InHand);
         if (card == null) return;
         RemoveCard(card);
         EmitSignal(SignalName.WantsToPlayCard, card, this);

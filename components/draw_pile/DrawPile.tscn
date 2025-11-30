@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://bb7q5uh0qsjqt" path="res://components/draw_pile/DrawPile.cs" id="1_4xrdu"]
 
 [node name="Pile" type="Control"]
+custom_minimum_size = Vector2(59, 92)
 layout_mode = 3
 anchors_preset = 4
 anchor_top = 0.5

@@ -60,6 +60,9 @@ public partial class Game : Panel
 
 	public override async void _Ready()
 	{
+		// * Allow Game background panel to handle touch input
+		MouseFilter = MouseFilterEnum.Stop; 
+
 		InitBummerlFromLastRound();
 
 		SubscribeToSignals();
@@ -97,6 +100,7 @@ public partial class Game : Panel
 
 	private void SubscribeToSignals()
 	{
+		_drawPile.DrawPileClicked += OnDrawPileClicked;
 		_playerHand.WantsToPlayCard += OnHandWantsToPlayCard;
 		_enemyHand.WantsToPlayCard += OnHandWantsToPlayCard;
 		_playArea.BothCardsPlayed += OnBothCardsPlayed;
@@ -104,6 +108,7 @@ public partial class Game : Panel
 
 	private void UnsubscribeFromSignals()
 	{
+		_drawPile.DrawPileClicked -= OnDrawPileClicked;
 		_playerHand.WantsToPlayCard -= OnHandWantsToPlayCard;
 		_enemyHand.WantsToPlayCard -= OnHandWantsToPlayCard;
 		_playArea.BothCardsPlayed -= OnBothCardsPlayed;
@@ -202,17 +207,17 @@ public partial class Game : Panel
 		GD.Print($"Dealt {count} cards to {hand.Name}.");
 	}
 
-	public override void _UnhandledInput(InputEvent @event)
+	public override void _GuiInput(InputEvent @event)
 	{
-		if (@event is InputEventScreenTouch touchEvent && touchEvent.Pressed)
-		{
-			_playerHand.OnTouchOutside();
-		}
+		bool isTap = @event is InputEventScreenTouch touchEvent && touchEvent.Pressed;
+		if (!isTap) return;
+		_playerHand.OnTouchOutside();
+		AcceptEvent();
 	}
 
 	private async void OnHandWantsToPlayCard(Card card, Hand hand)
 	{
-		if (card.State != CardState.Idle && card.State != CardState.Selected)
+		if (card.State != CardState.InHand && card.State != CardState.Selected)
 		{
 			GD.PrintErr("Attempted to play a card that is not in hand nor selected!");
 			return;
@@ -368,6 +373,11 @@ public partial class Game : Panel
 		}
 
 	}
+
+	private void OnDrawPileClicked()
+    {
+        GD.Print("Draw pile clicked.");
+    }
 
 	private void ResetGame()
 	{
