@@ -13,58 +13,68 @@ using System.Threading.Tasks;
 using System.Linq;
 using Schnopsn.Components.bummerl;
 
+public enum Difficulty
+{
+	Easy,
+	Medium,
+	Hard
+}
+
 public partial class Game : Panel
 {
 	[Export]
-	private float _playAreaWaitingTimeMillis = 500f;
+	internal float _playAreaWaitingTimeMillis = 500f;
 	[Export]
-	private Hand _playerHand;
+	internal Hand _playerHand;
 	[Export]
-	private Hand _enemyHand;
+	internal Hand _enemyHand;
 	[Export]
-	private TrickPile _playerTrickPile;
+	internal TrickPile _playerTrickPile;
 	[Export]
-	private TrickPile _enemyTrickPile;
+	internal TrickPile _enemyTrickPile;
 	[Export]
-	private TrickPileScore _playerTrickPileScore;
+	internal TrickPileScore _playerTrickPileScore;
 	[Export]
-	private TrickPileScore _enemyTrickPileScore;
+	internal TrickPileScore _enemyTrickPileScore;
 	[Export]
-	private BummerlCounter _playerBummerlCounter;
+	internal BummerlCounter _playerBummerlCounter;
 	[Export]
-	private BummerlCounter _enemyBummerlCounter;
+	internal BummerlCounter _enemyBummerlCounter;
 	[Export]
-	private PlayArea _playArea;
+	internal PlayArea _playArea;
 	[Export]
-	private DrawPile _drawPile;
+	internal DrawPile _drawPile;
 
 	[Export]
-	private PackedScene _cardScene;
+	internal PackedScene _cardScene;
 
-	private BummerlManager _bummerlManager;
+	[Export]
+	internal Difficulty EnemyDifficulty = Difficulty.Medium;
 
-	private Card[] _cards;
+	internal BummerlManager _bummerlManager;
 
-	private Card trumpCard;
+	internal Card[] _cards;
 
-	private CardColor trumpColor;
+	internal Card trumpCard;
 
-	private int _playerScore = 0;
-	private int _enemyScore = 0;
+	internal CardColor trumpColor;
 
-	private int _playerExtraPoints = 0;
-	private int _enemyExtraPoints = 0;
+	internal int _playerScore = 0;
+	internal int _enemyScore = 0;
 
-	private bool _isFirstCardofTrick = true;
-	private bool _isTalonClosed = false;
-	private bool _talonClosedByPlayer = false;
+	internal int _playerExtraPoints = 0;
+	internal int _enemyExtraPoints = 0;
 
-	private int _playerPointsAtClose = 0;
-	private int _enemyPointsAtClose = 0;
-	private bool _playerHadTrickAtClose = false;
-	private bool _enemyHadTrickAtClose = false;
-	private Card _currentLeadCard = null;
-	private Hand _currentLeadHand = null;
+	internal bool _isFirstCardofTrick = true;
+	internal bool _isTalonClosed = false;
+	internal bool _talonClosedByPlayer = false;
+
+	internal int _playerPointsAtClose = 0;
+	internal int _enemyPointsAtClose = 0;
+	internal bool _playerHadTrickAtClose = false;
+	internal bool _enemyHadTrickAtClose = false;
+	internal Card _currentLeadCard = null;
+	internal Hand _currentLeadHand = null;
 
 	private bool IsEndgamePhase => _isTalonClosed || _drawPile.CardCount == 0;
 
@@ -235,6 +245,7 @@ public partial class Game : Panel
 
 		// --- Trumpf-Unter-Tausch (wie bisher) ---
 		if (!_isTalonClosed
+			&& _isFirstCardofTrick        // <-- NEU: nur als erste Karte im Stich
 			&& card.Color == trumpColor
 			&& card.Value == CardValue.unter
 			&& trumpCard.Value != CardValue.unter
@@ -293,6 +304,8 @@ public partial class Game : Panel
 				GD.Print($"Enemy announced {extrapoints} extra points!");
 			}
 			UpdateScoreUi();
+
+			if(CheckForImmediateVictoryAfterAnnouncement()) return;
 		}
 
 		bool isFirstCardofTrick = _isFirstCardofTrick;
@@ -704,56 +717,304 @@ public partial class Game : Panel
 	}
 
 
-	private void PlayEnemyTurn()
+	    private void PlayEnemyTurn()
+    {
+        // Möglichkeit zum Zudrehen nur am Beginn eines Stiches
+        if (!_isTalonClosed && _drawPile.CardCount > 2 && _isFirstCardofTrick)
+        {
+            if (EnemyShouldCloseNow())
+                CloseTalon(false);
+        }
+
+        var card = ChooseCardForEnemy(_enemyHand);
+        if (card == null) return;
+
+        OnHandWantsToPlayCard(card, _enemyHand);
+    }
+
+    // Falls nach einem Untertausch der Gegner immer noch am Zug ist
+    private void PlayEnemyTurnSecondCardIfNeeded()
+    {
+        if (_isFirstCardofTrick)
+            return; // es wurde noch keine Karte gespielt
+
+        var card = ChooseCardForEnemy(_enemyHand);
+        if (card == null) return;
+
+        OnHandWantsToPlayCard(card, _enemyHand);
+    }
+
+    // === KI: Karte abhängig von EnemyDifficulty wählen ===
+    private Card ChooseCardForEnemy(Hand enemyHand)
+    {
+        var candidates = enemyHand.CardsInHand
+            .Where(c => c.State == CardState.InHand)
+            .ToList();
+
+        if (!candidates.Any())
+            return null;
+
+        switch (EnemyDifficulty)
+        {
+            case Difficulty.Easy:
+                return ChooseCardForEnemyEasy(candidates, enemyHand);
+            case Difficulty.Medium:
+                return ChooseCardForEnemyMedium(candidates, enemyHand);
+            case Difficulty.Hard:
+                return ChooseCardForEnemyHard(candidates, enemyHand);
+        }
+
+        // Fallback
+        return candidates.FirstOrDefault();
+    }
+
+    // -------- EASY: zufällig / dumm --------
+    private Card ChooseCardForEnemyEasy(List<Card> cards, Hand hand)
+    {
+        var validCards = cards.Where(c => IsPlayLegal(hand, c)).ToList();
+        if (!validCards.Any())
+            validCards = cards;
+
+        int idx = (int)(GD.Randi() % (uint)validCards.Count);
+        return validCards[idx];
+    }
+
+    // -------- MEDIUM: Heuristik + kleiner Minimax im Endspiel --------
+    private Card ChooseCardForEnemyMedium(List<Card> cards, Hand hand)
+    {
+        var validCards = cards.Where(c => IsPlayLegal(hand, c)).ToList();
+        if (!validCards.Any())
+            validCards = cards;
+
+        // Im Endspiel: kleiner AlphaBeta mit geringer Tiefe (z.B. 2)
+        if (IsEndgamePhase)
+        {
+            Card bestCard = null;
+            double bestScore = double.NegativeInfinity;
+            int depth = 2;
+
+            foreach (var card in validCards)
+            {
+                var clonedState = CloneGameStateWithMove(hand, card);
+                double score = AlphaBeta(clonedState, depth,
+                                         double.NegativeInfinity,
+                                         double.PositiveInfinity,
+                                         maximizingPlayer: false);
+
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    bestCard = card;
+                }
+            }
+
+            if (bestCard != null)
+                return bestCard;
+        }
+
+        // Vor dem Endspiel: einfache Heuristik
+
+        // 1) Trumpf priorisieren
+        var trump = validCards.FirstOrDefault(c => c.Color == trumpColor);
+        if (trump != null)
+            return trump;
+
+        // 2) Falls Nachspieler: Farbe bedienen, wenn möglich
+        if (!_isFirstCardofTrick && _currentLeadCard != null)
+        {
+            var leadColor = _currentLeadCard.Color;
+            var follow = validCards.FirstOrDefault(c => c.Color == leadColor);
+            if (follow != null)
+                return follow;
+        }
+
+        // 3) Höchste Punktekarte
+        return validCards
+            .OrderByDescending(c => Rules.Points(c.Value))
+            .First();
+    }
+
+    // -------- HARD: Alpha-Beta-Minimax mit dynamischer Tiefe --------
+    private Card ChooseCardForEnemyHard(List<Card> cards, Hand hand)
+    {
+        var validCards = cards.Where(c => IsPlayLegal(hand, c)).ToList();
+        if (!validCards.Any())
+            validCards = cards;
+
+        // Dynamische Tiefe:
+        // - Vor Endspiel: kürzer (3)
+        // - Im Endspiel: tiefer (5), weil weniger Karten
+        int depth = IsEndgamePhase ? 5 : 3;
+
+        double bestScore = double.NegativeInfinity;
+        Card bestCard = null;
+
+        foreach (var card in validCards)
+        {
+            var clonedState = CloneGameStateWithMove(hand, card);
+            double score = AlphaBeta(clonedState, depth,
+                                     double.NegativeInfinity,
+                                     double.PositiveInfinity,
+                                     maximizingPlayer: false);
+
+            if (score > bestScore)
+            {
+                bestScore = score;
+                bestCard = card;
+            }
+        }
+
+        return bestCard ?? validCards.First();
+    }
+
+    // Alpha-Beta-Minimax über GameState
+    private double AlphaBeta(GameState state, int depth, double alpha, double beta, bool maximizingPlayer)
+    {
+        if (depth == 0 || state.IsTerminal())
+            return EvaluateState(state);
+
+        var currentRole = maximizingPlayer ? PlayerRole.Enemy : PlayerRole.Player;
+        var validMoves = state.GetValidMoves(currentRole);
+
+        if (!validMoves.Any())
+            return EvaluateState(state);
+
+        if (maximizingPlayer)
+        {
+            double value = double.NegativeInfinity;
+            foreach (var move in validMoves)
+            {
+                var nextState = state.Clone();
+                nextState.ApplyMove(PlayerRole.Enemy, move);
+                value = Math.Max(value, AlphaBeta(nextState, depth - 1, alpha, beta, false));
+                alpha = Math.Max(alpha, value);
+                if (beta <= alpha)
+                    break; // Beta-Cutoff
+            }
+            return value;
+        }
+        else
+        {
+            double value = double.PositiveInfinity;
+            foreach (var move in validMoves)
+            {
+                var nextState = state.Clone();
+                nextState.ApplyMove(PlayerRole.Player, move);
+                value = Math.Min(value, AlphaBeta(nextState, depth - 1, alpha, beta, true));
+                beta = Math.Min(beta, value);
+                if (beta <= alpha)
+                    break; // Alpha-Cutoff
+            }
+            return value;
+        }
+    }
+
+    // Bewertung eines Zustands aus Sicht des Gegners (Enemy)
+    private double EvaluateState(GameState state)
+    {
+        int playerPoints = state.GetPlayerPoints();
+        int enemyPoints  = state.GetEnemyPoints();
+
+        if (enemyPoints >= 66) return 1000;
+        if (playerPoints >= 66) return -1000;
+
+        // Einfacher Punkteabstand
+        return enemyPoints - playerPoints;
+    }
+
+    // aktuellen Game-Zustand klonen + einen Zug des angegebenen Spielers anwenden
+    private GameState CloneGameStateWithMove(Hand hand, Card card)
+    {
+        var clone = GameState.FromCurrent(this);
+
+        var role = (hand == _playerHand) ? PlayerRole.Player : PlayerRole.Enemy;
+        clone.ApplyMove(role, card);
+
+        return clone;
+    }
+
+    // -------- Talon-Zudrehen je nach Difficulty --------
+    private bool EnemyShouldCloseNow()
+    {
+        switch (EnemyDifficulty)
+        {
+            case Difficulty.Easy:
+                // Einfache KI dreht nie zu
+                return false;
+
+            case Difficulty.Medium:
+                // Mittlere KI: nur bei klarem Vorsprung & halbwegs starken Karten
+                return _enemyScore >= 50
+                    && _enemyScore > _playerScore + 20
+                    && HasStrongHand(_enemyHand);
+
+            case Difficulty.Hard:
+                // Harte KI: aggressiver
+                return _enemyScore >= 40
+                    && _enemyScore > _playerScore + 10
+                    && HasStrongHand(_enemyHand);
+        }
+        return false;
+    }
+
+    private bool HasStrongHand(Hand hand)
+    {
+        var cards = hand.CardsInHand.ToList();
+        int score = cards.Sum(c => Rules.Points(c.Value));
+        int trumpCount = cards.Count(c => c.Color == trumpColor);
+
+        // einfache Heuristik: viele Augen + mindestens 2 Trümpfe
+        return score >= 25 && trumpCount >= 2;
+    }
+
+	private bool CheckForImmediateVictoryAfterAnnouncement()
 	{
-		if (!_isTalonClosed && _drawPile.CardCount > 2 && _isFirstCardofTrick)
+		// Wenn bereits zugedreht wurde, kannst du entscheiden,
+		// ob du trotzdem sofort werten willst. Ich breche sicherheitshalber ab:
+		if (_isTalonClosed)
+			return false;
+
+		int totalPlayerPoints = GetTotalPoints(true);
+		int totalEnemyPoints  = GetTotalPoints(false);
+
+		bool playerReached66 = totalPlayerPoints >= 66;
+		bool enemyReached66  = totalEnemyPoints >= 66;
+
+		if (!playerReached66 && !enemyReached66)
+			return false; // niemand hat 66, nichts zu tun
+
+		GD.Print("=== ROUND END (immediate after announcement) ===");
+
+		bool playerIsWinner;
+
+		if (playerReached66 && !enemyReached66)
 		{
-			if (EnemyShouldCloseNow()) CloseTalon(false);
+			playerIsWinner = true;
+		}
+		else if (enemyReached66 && !playerReached66)
+		{
+			playerIsWinner = false;
+		}
+		else
+		{
+			// Beide ≥ 66 → wer mehr hat, gewinnt
+			playerIsWinner = totalPlayerPoints >= totalEnemyPoints;
 		}
 
-		var card = ChooseCardForEnemy(_enemyHand);
-		if (card == null) return;
+		int winnerPoints = playerIsWinner ? totalPlayerPoints : totalEnemyPoints;
+		int loserPoints  = playerIsWinner ? totalEnemyPoints  : totalPlayerPoints;
 
-		OnHandWantsToPlayCard(card, _enemyHand);
-	}
+		int gamePoints = GetGamePointsFromLoser(loserPoints);
 
+		GD.Print($"Immediate winner = {(playerIsWinner ? "PLAYER" : "ENEMY")} for {gamePoints} game points (announcement).");
 
-	// Falls nach einem Untertausch der Gegner immer noch am Zug ist
-	private void PlayEnemyTurnSecondCardIfNeeded()
-	{
-		if (_isFirstCardofTrick)
-			return; // es wurde noch keine Karte gespielt
+		if (playerIsWinner)
+			_bummerlManager.ReducePlayerBummerl(gamePoints);
+		else
+			_bummerlManager.ReduceEnemyBummerl(gamePoints);
 
-		var card = ChooseCardForEnemy(_enemyHand);
-		if (card == null) return;
-
-		OnHandWantsToPlayCard(card, _enemyHand);
-	}
-
-	// EXTREM simple „KI“: nimm die erste legale Karte
-	private Card ChooseCardForEnemy(Hand enemyHand)
-	{
-		// Alle grob spielbaren Karten
-		var candidates = enemyHand.CardsInHand
-			.Where(c => c.State == CardState.InHand)
-			.ToList();
-
-		foreach (var c in candidates)
-		{
-			if (IsPlayLegal(enemyHand, c))
-				return c;
-		}
-
-		// Falls keine Karte legal ist (sollte nicht vorkommen),
-		// nehmen wir einfach die erste und lassen sie durchgehen.
-		return candidates.FirstOrDefault();
-	}
-
-	private bool EnemyShouldCloseNow()
-	{
-		// TODO: Hier später echte KI-Logik einbauen.
-		// Aktuell: niemals zudrehen.
-		return false;
+		ResetGame();
+		return true; // WICHTIG: Spiel wurde beendet
 	}
 
 }
