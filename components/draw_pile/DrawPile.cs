@@ -101,4 +101,34 @@ public partial class DrawPile : CardReceiver
 		EmitSignal(SignalName.DrawPileClicked);
 		AcceptEvent();
     }
+
+	public void CloseTalon(Card trumpCard)
+	{
+		if (trumpCard == null)
+			return;
+
+		trumpCard.FaceDown();
+
+		trumpCard.GetParent()?.RemoveChild(trumpCard);
+		AddChild(trumpCard);
+
+		// Auf die Position des Talons setzen
+		trumpCard.GlobalPosition = GlobalPosition;
+
+		// Über den Stapel rendern
+		trumpCard.ZAsRelative = false;
+		trumpCard.ZIndex = 100;
+
+		// Karte um 270° drehen (links liegend)
+		trumpCard.RotationDegrees = 270;
+
+		// Größe holen
+		Vector2 size = trumpCard.Size;
+
+		// **Korrektur nach unten**, passend zu deiner Grafik:
+		trumpCard.Position += new Vector2(size.Y * 0.10f, size.X * 1.23f);
+	}
+
+
+
 }

@@ -56,6 +56,13 @@ public partial class Game : Panel
 	private int _enemyExtraPoints = 0;
 
 	private bool _isFirstCardofTrick = true;
+	private bool _isTalonClosed = false;
+	private bool _talonClosedByPlayer = false;
+
+	private int _playerPointsAtClose = 0;
+	private int _enemyPointsAtClose = 0;
+	private bool _playerHadTrickAtClose = false;
+	private bool _enemyHadTrickAtClose = false;
 
 
 	public override async void _Ready()
@@ -226,7 +233,8 @@ public partial class Game : Panel
 		// --- Trumpf-Unter-Tausch ---
 		// Wenn der Spieler den Trumpf-Unter "spielt" und noch > 2 Karten im Talon sind,
 		// darf er den Unter gegen die aufgedeckte Trumpfkarte tauschen.
-		if (card.Color == trumpColor
+		if (!_isTalonClosed
+			&&card.Color == trumpColor
 			&& card.Value == CardValue.unter
 			&& _drawPile.CardCount > 2              // richtiger Talon-Count
 			&& _drawPile.ContainsCard(trumpCard))   // Trumpfkarte liegt noch im Talon
@@ -265,7 +273,7 @@ public partial class Game : Panel
 		hand.RemoveCard(card);
 		hand.OnTouchOutside(); // Auswahl sicher weg
 
-		if (hand.CheckAnsage(card))
+		if (_isFirstCardofTrick && hand.CheckAnsage(card))
 		{
 			int extrapoints = 20;
 			if (card.Color == trumpColor) extrapoints = 40;
@@ -320,49 +328,178 @@ public partial class Game : Panel
 		if (winner.isPlayerCard)
 		{
 			_playerScore += Rules.Points(cards[0].Value) + Rules.Points(cards[1].Value);
-			DealCardsToHand(_playerHand, 1);
-			DealCardsToHand(_enemyHand, 1);
+
+			if (!_isTalonClosed && _drawPile.CardCount >= 2)
+			{
+				DealCardsToHand(_playerHand, 1);
+				DealCardsToHand(_enemyHand, 1);
+			}
 		}
 		else
 		{
 			_enemyScore += Rules.Points(cards[0].Value) + Rules.Points(cards[1].Value);
-			DealCardsToHand(_enemyHand, 1);
-			DealCardsToHand(_playerHand, 1);
+
+			if (!_isTalonClosed && _drawPile.CardCount >= 2)
+			{
+				DealCardsToHand(_enemyHand, 1);
+				DealCardsToHand(_playerHand, 1);
+			}
 		}
 
 		UpdateScoreUi();
 
+		// Gesamtpunkte inkl. Ansagen, mit 0-Stich-Regel
 		int totalPlayerPoints = _playerScore + _playerExtraPoints;
-		int totalEnemyPoints = _enemyScore + _enemyExtraPoints;
+		int totalEnemyPoints  = _enemyScore + _enemyExtraPoints;
 
 		if (_playerScore == 0) totalPlayerPoints = 0;
 		if (_enemyScore == 0) totalEnemyPoints = 0;
+
 		GD.Print($"Player score: {totalPlayerPoints}, Enemy score: {totalEnemyPoints}");
 
-		bool playerWonGame = totalPlayerPoints >= 66;
-		bool enemyWonGame = totalEnemyPoints >= 66;
+		// Hat jemand 66 erreicht?
+		bool playerReached66 = totalPlayerPoints >= 66;
+		bool enemyReached66  = totalEnemyPoints >= 66;
 
-		if (playerWonGame)
+		// Sind alle Karten weg? (keine Handkarten + kein Talon mehr)
+		bool allCardsPlayed =
+			!_playerHand.HasCards &&
+			!_enemyHand.HasCards &&
+			(_drawPile.CardCount == 0 || _isTalonClosed);
+
+		if (playerReached66 || enemyReached66 || allCardsPlayed)
 		{
-			// TODO: Reduce 1, 2 or 3 Bummerl depending on enemy's score
-			_bummerlManager.ReducePlayerBummerl(1);
+			GD.Print("=== ROUND END ===");
+
+			bool playerIsWinner;
+			int gamePoints;
+
+			if (_isTalonClosed)
+			{
+				GD.Print("Talon was CLOSED during the round.");
+
+				bool closerIsPlayer = _talonClosedByPlayer;
+
+				int closerTotalNow     = closerIsPlayer ? totalPlayerPoints : totalEnemyPoints;
+				int noncloserTotalNow  = closerIsPlayer ? totalEnemyPoints  : totalPlayerPoints;
+
+				bool closerReached66   = closerIsPlayer ? playerReached66   : enemyReached66;
+				bool noncloserReached66= closerIsPlayer ? enemyReached66   : playerReached66;
+
+				int noncloserPointsAtClose =
+					closerIsPlayer ? _enemyPointsAtClose : _playerPointsAtClose;
+
+				bool noncloserHadTrickAtClose =
+					closerIsPlayer ? _enemyHadTrickAtClose : _playerHadTrickAtClose;
+
+				GD.Print($"Closer = {(closerIsPlayer ? "PLAYER" : "ENEMY")}");
+				GD.Print($"Closer reached 66 = {closerReached66}");
+				GD.Print($"Non-closer points at close = {noncloserPointsAtClose}");
+				GD.Print($"Non-closer had trick at close = {noncloserHadTrickAtClose}");
+
+				bool closerWins;
+
+				// Zudreher hat NICHT 66 → automatische Niederlage
+				if (!closerReached66)
+				{
+					closerWins = false;
+					GD.Print("Closer DID NOT reach 66 → automatic loss.");
+				}
+				else if (noncloserReached66 && noncloserTotalNow > closerTotalNow)
+				{
+					closerWins = false;
+					GD.Print("Both reached 66, but non-closer has MORE points → closer loses.");
+				}
+				else
+				{
+					closerWins = true;
+					GD.Print("Closer reached 66 and is ahead → closer wins.");
+				}
+
+				if (closerWins)
+				{
+					// Zudreher gewinnt: Punkte des Nicht-Zudrehers beim Zudrehen zählen
+					if (noncloserPointsAtClose == 0)
+						gamePoints = 3;
+					else if (noncloserPointsAtClose < 33)
+						gamePoints = 2;
+					else
+						gamePoints = 1;
+
+					GD.Print($"Closer wins → gamePoints = {gamePoints} (based on non-closer points at close)");
+
+					playerIsWinner = closerIsPlayer;
+				}
+				else
+				{
+					// Zudreher verliert: Gegner bekommt 2 oder 3
+					if (!noncloserHadTrickAtClose)
+					{
+						gamePoints = 3;
+						GD.Print("Closer loses & non-closer had NO trick at close → gamePoints = 3");
+					}
+					else
+					{
+						gamePoints = 2;
+						GD.Print("Closer loses & non-closer HAD a trick at close → gamePoints = 2");
+					}
+
+					playerIsWinner = !closerIsPlayer;
+				}
+
+				GD.Print($"Winner = {(playerIsWinner ? "PLAYER" : "ENEMY")}");
+			}
+			else
+			{
+				GD.Print("Talon was OPEN → applying normal rules.");
+
+				// NORMALFALL (nicht zugedreht)
+				if (playerReached66 && !enemyReached66)
+				{
+					playerIsWinner = true;
+					GD.Print("Player reached 66 and enemy did not → Player wins.");
+				}
+				else if (enemyReached66 && !playerReached66)
+				{
+					playerIsWinner = false;
+					GD.Print("Enemy reached 66 and player did not → Enemy wins.");
+				}
+				else
+				{
+					// Niemand 66 → letzter Stich
+					playerIsWinner = winner.isPlayerCard;
+					GD.Print("No one reached 66 → last trick decides winner.");
+				}
+
+				int winnerPoints = playerIsWinner ? totalPlayerPoints : totalEnemyPoints;
+				int loserPoints  = playerIsWinner ? totalEnemyPoints  : totalPlayerPoints;
+
+				gamePoints = GetGamePointsFromLoser(loserPoints);
+
+				GD.Print($"Based on loser points {loserPoints} → gamePoints = {gamePoints}");
+			}
+
+			GD.Print($"Final winner = {(playerIsWinner ? "PLAYER" : "ENEMY")} for {gamePoints} game points.");
+			GD.Print("=== END ROUND ===");
+
+			// Spielpunkte abziehen
+			if (playerIsWinner)
+				_bummerlManager.ReducePlayerBummerl(gamePoints);
+			else
+				_bummerlManager.ReduceEnemyBummerl(gamePoints);
+
 			ResetGame();
 			return;
 		}
-		else if (enemyWonGame)
-		{
-			// TODO: Reduce 1, 2 or 3 Bummerl depending on player's score
-			_bummerlManager.ReduceEnemyBummerl(1);
-			ResetGame();
-			return;
-		}
+
+		// Kein Rundenende -> nächster Stich
 
 		// Neuen Stich vorbereiten
 		_isFirstCardofTrick = true;
 
-		// Wenn der Gegner den Stich gewonnen hat und das Spiel noch nicht vorbei ist,
+		// Wenn der Gegner den Stich gewonnen hat,
 		// soll der Gegner den nächsten Stich eröffnen.
-		if (!playerWonGame && !enemyWonGame && !winner.isPlayerCard)
+		if (!winner.isPlayerCard)
 		{
 			await ToSignal(GetTree().CreateTimer(0.3f), Timer.SignalName.Timeout);
 
@@ -375,9 +512,33 @@ public partial class Game : Panel
 	}
 
 	private void OnDrawPileClicked()
-    {
-        GD.Print("Draw pile clicked.");
-    }
+	{
+		GD.Print("Draw pile clicked.");
+
+		// Talon schon zugedreht? -> nichts tun
+		if (_isTalonClosed)
+		{
+			GD.Print("Talon ist bereits zugedreht.");
+			return;
+		}
+
+		// Zu wenige Karten im Talon -> laut Regeln meistens nicht mehr zudrehbar
+		if (_drawPile.CardCount <= 2)
+		{
+			GD.Print("Talon kann nicht mehr zugedreht werden (<= 2 Karten).");
+			return;
+		}
+
+		// Nur am Beginn eines Stiches zudrehen erlauben
+		if (!_isFirstCardofTrick)
+		{
+			GD.Print("Zudrehen ist nur am Beginn eines Stiches erlaubt.");
+			return;
+		}
+
+		CloseTalon(true);
+	}
+
 
 	private void ResetGame()
 	{
@@ -399,16 +560,51 @@ public partial class Game : Panel
 
 	private void UpdateScoreUi()
 	{
-		int totalPlayerPoints = _playerScore + _playerExtraPoints;
-		int totalEnemyPoints = _enemyScore + _enemyExtraPoints;
-
-		// 0-Stich-Regel berücksichtigen, wenn du das auch in der UI willst:
-		if (_playerScore == 0) totalPlayerPoints = 0;
-		if (_enemyScore == 0) totalEnemyPoints = 0;
-
-		_playerTrickPileScore.SetScore(totalPlayerPoints);
-		_enemyTrickPileScore.SetScore(totalEnemyPoints);
+		_playerTrickPileScore.SetScore(GetTotalPoints(true));
+		_enemyTrickPileScore.SetScore(GetTotalPoints(false));
 	}
 
+	private void CloseTalon(bool closedByPlayer)
+	{
+		if (_isTalonClosed)
+			return;
+
+		_isTalonClosed = true;
+		_talonClosedByPlayer = closedByPlayer;
+
+		// *** HIER Punktezustand einfrieren ***
+		_playerPointsAtClose = GetTotalPoints(true);
+		_enemyPointsAtClose  = GetTotalPoints(false);
+
+		// „hatte Trick“ nur über die Kartenpunkte (_playerScore) checken,
+		// Extra-Punkte kommen ja von 20/40 etc.
+		_playerHadTrickAtClose = _playerScore > 0;
+		_enemyHadTrickAtClose  = _enemyScore > 0;
+
+		_drawPile.CloseTalon(trumpCard);
+
+		GD.Print($"{(closedByPlayer ? "Player" : "Enemy")} hat den Talon zugedreht. " +
+				$"(Player@close={_playerPointsAtClose}, Enemy@close={_enemyPointsAtClose})");
+	}
+
+	private int GetTotalPoints(bool forPlayer)
+	{
+		int baseScore = forPlayer ? _playerScore : _enemyScore;
+		int extra     = forPlayer ? _playerExtraPoints : _enemyExtraPoints;
+
+		// 0-Stich-Regel: hat jemand keinen Stich, zählen Extra-Punkte nicht
+		if (baseScore == 0)
+			return 0;
+
+		return baseScore + extra;
+	}
+
+	// Wie viele Spielpunkte bekommt der Gewinner, basierend auf den Punkten des Verlierers?
+	private int GetGamePointsFromLoser(int loserTotalPoints)
+	{
+		if (loserTotalPoints == 0)      return 3; // Gegner kein Stich
+		if (loserTotalPoints < 33)      return 2; // Gegner < 33 Augen
+		return 1;                       // Gegner >= 33 Augen
+	}
 
 }
