@@ -68,6 +68,15 @@ public partial class StartMenu : Panel
         AcceptEvent();
     }
 
+    public override void _Notification(int what)
+    {
+        if (what == NotificationWMGoBackRequest)
+        {
+            GetViewport()?.SetInputAsHandled();
+            GetTree()?.Quit();
+        }
+    }
+
     private async void TransitionToGame()
     {
         var viewport = GetViewport();
@@ -91,6 +100,7 @@ public partial class StartMenu : Panel
         await ToSignal(tween, Tween.SignalName.Finished);
         
         GD.Print(">>>> Transition finished");
+        _isTransitioning = false;
         
         GetTree().ChangeSceneToPacked(_gameScene);
         coverPanel.QueueFree();

@@ -242,6 +242,15 @@ public partial class Game : Panel
 		AcceptEvent();
 	}
 
+	public override void _Notification(int what)
+	{
+		if (what == NotificationWMGoBackRequest)
+		{
+			GetViewport()?.SetInputAsHandled();
+			GetTree()?.ChangeSceneToFile("res://components/start_menu/StartMenu.tscn");
+		}
+	}
+
 	private async void OnHandWantsToPlayCard(Card card, Hand hand)
 	{
 		if (card.State != CardState.InHand && card.State != CardState.Selected)
