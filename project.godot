@@ -18,6 +18,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 BummerlManager="*res://core/BummerlManager.cs"
+DifficultyManager="*res://core/DifficultyManager.cs"
 
 [display]
 
@@ -26,7 +27,6 @@ window/size/viewport_height=1920
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/stretch/scale=3.0
-window/stretch/scale_mode="integer"
 window/handheld/orientation=1
 
 [dotnet]

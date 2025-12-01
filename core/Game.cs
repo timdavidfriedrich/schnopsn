@@ -12,7 +12,7 @@ using Schnopsn.components.trick_pile;
 using System.Threading.Tasks;
 using System.Linq;
 using Schnopsn.Components.bummerl;
-using Schnopsn.components.end;
+using Schnopsn.components.difficulty;
 
 public enum Difficulty
 {
@@ -42,6 +42,8 @@ public partial class Game : Panel
 	[Export]
 	internal BummerlCounter _enemyBummerlCounter;
 	[Export]
+	internal DifficultyDisplay _difficultyDisplay;
+	[Export]
 	internal PlayArea _playArea;
 	[Export]
 	internal DrawPile _drawPile;
@@ -50,15 +52,14 @@ public partial class Game : Panel
 	internal PackedScene _cardScene;
 
 	[Export]
-	internal Difficulty EnemyDifficulty = Difficulty.Medium;
-
-	[Export]
 	private PackedScene _wonEndDialog;
 
 	[Export]
 	private PackedScene _lostEndDialog;
 
 	internal BummerlManager _bummerlManager;
+
+	internal DifficultyManager _difficultyManager;
 
 	internal Card[] _cards;
 
@@ -90,6 +91,7 @@ public partial class Game : Panel
 		// * Allow Game background panel to handle touch input
 		MouseFilter = MouseFilterEnum.Stop; 
 
+		InitDifficultyFromLastRound();
 		InitBummerlFromLastRound();
 
 		SubscribeToSignals();
@@ -113,6 +115,17 @@ public partial class Game : Panel
 		UnsubscribeFromSignals();
 	}
 
+	private void InitDifficultyFromLastRound()
+	{
+		_difficultyManager = DifficultyManager.Instance;
+		if (_difficultyManager == null)
+		{
+			GD.PrintErr("DifficultyManager instance not found!");
+			return;
+		}
+		_difficultyDisplay.SetDifficultyLevel(_difficultyManager.EnemyDifficulty);
+	}
+
 	private void InitBummerlFromLastRound()
     {
 		_bummerlManager = BummerlManager.Instance;
@@ -131,6 +144,7 @@ public partial class Game : Panel
 		_playerHand.WantsToPlayCard += OnHandWantsToPlayCard;
 		_enemyHand.WantsToPlayCard += OnHandWantsToPlayCard;
 		_playArea.BothCardsPlayed += OnBothCardsPlayed;
+		_difficultyDisplay.DifficultyChanged += OnDifficultyChanged;
 	}
 
 	private void UnsubscribeFromSignals()
@@ -139,6 +153,7 @@ public partial class Game : Panel
 		_playerHand.WantsToPlayCard -= OnHandWantsToPlayCard;
 		_enemyHand.WantsToPlayCard -= OnHandWantsToPlayCard;
 		_playArea.BothCardsPlayed -= OnBothCardsPlayed;
+		_difficultyDisplay.DifficultyChanged -= OnDifficultyChanged;
 	}
 
 	private void CreateAndShuffleCards()
@@ -577,6 +592,13 @@ public partial class Game : Panel
 		CloseTalon(true);
 	}
 
+	private void OnDifficultyChanged()
+	{
+		_difficultyManager.ToggleDifficulty();
+		_difficultyDisplay.SetDifficultyLevel(_difficultyManager.EnemyDifficulty);
+		GD.Print($"Enemy difficulty changed to {_difficultyManager.EnemyDifficulty}");
+	}
+
 
 	private void EndRoundOrGame()
 	{
@@ -779,7 +801,7 @@ public partial class Game : Panel
         if (!candidates.Any())
             return null;
 
-        switch (EnemyDifficulty)
+        switch (_difficultyManager.EnemyDifficulty)
         {
             case Difficulty.Easy:
                 return ChooseCardForEnemyEasy(candidates, enemyHand);
@@ -961,7 +983,7 @@ public partial class Game : Panel
     // -------- Talon-Zudrehen je nach Difficulty --------
     private bool EnemyShouldCloseNow()
     {
-        switch (EnemyDifficulty)
+        switch (_difficultyManager.EnemyDifficulty)
         {
             case Difficulty.Easy:
                 // Einfache KI dreht nie zu

@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://c41phke27qcnw"]
+[gd_scene load_steps=14 format=3 uid="uid://c41phke27qcnw"]
 
 [ext_resource type="Script" uid="uid://2j0qfo1cltqf" path="res://core/Game.cs" id="1_cmax4"]
 [ext_resource type="PackedScene" uid="uid://bijfqq4l66mx6" path="res://components/card/Card.tscn" id="2_w2rrx"]
@@ -9,13 +9,14 @@
 [ext_resource type="PackedScene" uid="uid://drmhvw5fjh6n3" path="res://components/draw_pile/DrawPile.tscn" id="5_w2rrx"]
 [ext_resource type="PackedScene" uid="uid://bwpix0hpllui0" path="res://components/CardSizedContainer.tscn" id="6_2obkm"]
 [ext_resource type="PackedScene" uid="uid://ddswxokemicwc" path="res://components/trick_pile/TrickPile.tscn" id="6_r4riq"]
+[ext_resource type="PackedScene" uid="uid://p6gl56h7x4b5" path="res://components/difficulty/DifficultyDisplay.tscn" id="8_58pcf"]
 [ext_resource type="PackedScene" uid="uid://dg6fkm22fgx3k" path="res://components/bummerl/BummerlCounter.tscn" id="8_e5e06"]
 [ext_resource type="PackedScene" uid="uid://c283ubobrre2a" path="res://components/trick_pile_score/TrickPileScore.tscn" id="9_qqyo8"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r4riq"]
 bg_color = Color(0.14901961, 0.36078432, 0.25882354, 1)
 
-[node name="Game" type="Panel" node_paths=PackedStringArray("_playerHand", "_enemyHand", "_playerTrickPile", "_enemyTrickPile", "_playerTrickPileScore", "_enemyTrickPileScore", "_playerBummerlCounter", "_enemyBummerlCounter", "_playArea", "_drawPile")]
+[node name="Game" type="Panel" node_paths=PackedStringArray("_playerHand", "_enemyHand", "_playerTrickPile", "_enemyTrickPile", "_playerTrickPileScore", "_enemyTrickPileScore", "_playerBummerlCounter", "_enemyBummerlCounter", "_difficultyDisplay", "_playArea", "_drawPile")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -33,7 +34,8 @@ _enemyTrickPile = NodePath("VBoxContainer/HBoxContainer/CenterContainer/CardSize
 _playerTrickPileScore = NodePath("VBoxContainer/HBoxContainer3/CenterContainer2/CardSizedContainer/PlayerTrickPileScore")
 _enemyTrickPileScore = NodePath("VBoxContainer/HBoxContainer/CenterContainer/CardSizedContainer/EnemyTrickPileScore")
 _playerBummerlCounter = NodePath("VBoxContainer/HBoxContainer3/MarginContainer/PlayerBummerlCounter")
-_enemyBummerlCounter = NodePath("VBoxContainer/HBoxContainer/MarginContainer/EnemyBummerlCounter")
+_enemyBummerlCounter = NodePath("VBoxContainer/HBoxContainer/MarginContainer/VBoxContainer/EnemyBummerlCounter")
+_difficultyDisplay = NodePath("VBoxContainer/HBoxContainer/MarginContainer/VBoxContainer/DifficultyDisplay")
 _playArea = NodePath("VBoxContainer/HBoxContainer2/CenterContainer2/CardSizedContainer/PlayArea")
 _drawPile = NodePath("VBoxContainer/HBoxContainer2/CenterContainer/CardSizedContainer/DrawPile")
 _cardScene = ExtResource("2_w2rrx")
@@ -74,9 +76,19 @@ size_flags_horizontal = 3
 mouse_filter = 2
 theme_override_constants/margin_top = 32
 
-[node name="EnemyBummerlCounter" parent="VBoxContainer/HBoxContainer/MarginContainer" instance=ExtResource("8_e5e06")]
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="EnemyBummerlCounter" parent="VBoxContainer/HBoxContainer/MarginContainer/VBoxContainer" instance=ExtResource("8_e5e06")]
 layout_mode = 2
 size_flags_vertical = 0
+
+[node name="SizedBox" type="Control" parent="VBoxContainer/HBoxContainer/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+
+[node name="DifficultyDisplay" parent="VBoxContainer/HBoxContainer/MarginContainer/VBoxContainer" instance=ExtResource("8_58pcf")]
+layout_mode = 2
 
 [node name="CenterContainer" type="CenterContainer" parent="VBoxContainer/HBoxContainer"]
 layout_mode = 2

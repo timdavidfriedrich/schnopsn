@@ -1,0 +1,106 @@
+[gd_scene load_steps=13 format=3 uid="uid://p6gl56h7x4b5"]
+
+[ext_resource type="Texture2D" uid="uid://kg2x3urjfk03" path="res://components/difficulty/assets/difficulty_middle.png" id="1_3xc7j"]
+[ext_resource type="Script" uid="uid://bwarat5ggxnce" path="res://components/difficulty/DifficultyDisplay.cs" id="1_yt4jq"]
+[ext_resource type="Texture2D" uid="uid://d4b76vh6a4eto" path="res://components/difficulty/assets/difficulty_easy.png" id="2_gl7op"]
+[ext_resource type="Texture2D" uid="uid://dcmp4wuqqy2le" path="res://components/difficulty/assets/difficulty_easy_to_middle.png" id="3_kjlu4"]
+[ext_resource type="Texture2D" uid="uid://da5wrfv8xqlpk" path="res://components/difficulty/assets/difficulty_middle_to_hard.png" id="4_u0mpq"]
+[ext_resource type="Texture2D" uid="uid://dxbl0u600iwev" path="res://components/difficulty/assets/difficulty_hard.png" id="5_o0d12"]
+[ext_resource type="Texture2D" uid="uid://c5og2icthvytq" path="res://components/difficulty/assets/difficulty_hard_to_easy.png" id="6_05jn4"]
+
+[sub_resource type="Animation" id="Animation_gl7op"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("1_3xc7j")]
+}
+
+[sub_resource type="Animation" id="Animation_3xc7j"]
+resource_name = "easy_to_middle"
+length = 0.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [ExtResource("2_gl7op"), ExtResource("3_kjlu4"), ExtResource("1_3xc7j")]
+}
+
+[sub_resource type="Animation" id="Animation_o0d12"]
+resource_name = "hard_to_easy"
+length = 0.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [ExtResource("5_o0d12"), ExtResource("6_05jn4"), ExtResource("2_gl7op")]
+}
+
+[sub_resource type="Animation" id="Animation_kjlu4"]
+resource_name = "middle_to_hard"
+length = 0.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [ExtResource("1_3xc7j"), ExtResource("4_u0mpq"), ExtResource("5_o0d12")]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_gl7op"]
+_data = {
+&"RESET": SubResource("Animation_gl7op"),
+&"easy_to_middle": SubResource("Animation_3xc7j"),
+&"hard_to_easy": SubResource("Animation_o0d12"),
+&"middle_to_hard": SubResource("Animation_kjlu4")
+}
+
+[node name="DifficultyDisplay" type="Control" node_paths=PackedStringArray("_animationPlayer")]
+custom_minimum_size = Vector2(64, 30)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(1.5, 1.5)
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_yt4jq")
+_animationPlayer = NodePath("AnimationPlayer")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("1_3xc7j")
+stretch_mode = 5
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_gl7op")
+}
