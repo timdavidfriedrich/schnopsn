@@ -160,6 +160,10 @@ public partial class Hand : CardReceiver
 
     private void OnCardClicked(Card clickedCard)
     {
+        if (!_isPlayerHand && !_debugMode)
+        {
+            return;
+        }
         if (clickedCard.State == CardState.InHand)
         {
             _selectedCard?.Deselect();
@@ -168,8 +172,6 @@ public partial class Hand : CardReceiver
         }
         else if (clickedCard.State == CardState.Selected)
         {
-            // _selectedCard = null;
-            // RemoveCard(clickedCard);
             EmitSignal(SignalName.WantsToPlayCard, clickedCard, this);
         }
     }
