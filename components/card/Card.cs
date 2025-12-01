@@ -2,7 +2,7 @@ namespace Schnopsn.components.card;
 
 using System.Threading.Tasks;
 using Godot;
-
+using Schnopsn.core;
 
 public partial class Card : TextureRect
 {
@@ -92,6 +92,8 @@ public partial class Card : TextureRect
 
     private async Task FlipAnimation(Texture2D newTexture)
     {
+        AudioManager.Instance?.PlayFlipSound();
+
         var tween = GetTree().CreateTween();
         tween.SetEase(Tween.EaseType.InOut);
         tween.SetTrans(Tween.TransitionType.Quad);
@@ -171,6 +173,9 @@ public partial class Card : TextureRect
     public void Select()
     {
         if (State != CardState.InHand) return;
+
+        AudioManager.Instance?.PlayButtonSound();
+
         State = CardState.Selected;
 
         ZIndex = _zIndexOffset;
@@ -186,6 +191,9 @@ public partial class Card : TextureRect
     public void Deselect()
     {
         if (State != CardState.Selected) return;
+
+        AudioManager.Instance?.PlayButtonSound();
+
         State = CardState.InHand;
 
         ZIndex = _originalZIndex;
@@ -198,6 +206,8 @@ public partial class Card : TextureRect
     public void Play()
     {
         State = CardState.Transitioning;
+
+        AudioManager.Instance?.PlayFlightSound();
 
         ZIndex = _originalZIndex;
         _shadow.ZIndex = _originalShadowZIndex;
@@ -226,6 +236,7 @@ public partial class Card : TextureRect
 
 	private void AddRotation(float rotation, Vector2? pivotOffset = null)
 	{
+        AudioManager.Instance?.PlayFlipSound();
 		PivotOffset = pivotOffset ?? new Vector2(Size.X / 2, Size.Y / 2);
 		var tween = GetTree().CreateTween();
 		tween.TweenProperty(this, "rotation_degrees", rotation, 0.3)
@@ -243,6 +254,8 @@ public partial class Card : TextureRect
         }
 
         GD.Print("Playing illegal move feedback animation.");
+
+        AudioManager.Instance?.PlayErrorSound();
 
         var singleDuration = _illegalAnimationDuration / 2f;
         var originalScaleY = Scale.Y;

@@ -1,7 +1,7 @@
 namespace Schnopsn.components.start_menu;
 
 using Godot;
-
+using Schnopsn.core;
 
 public partial class StartMenuCard : AspectRatioContainer
 {
@@ -21,6 +21,12 @@ public partial class StartMenuCard : AspectRatioContainer
     private async void PlayAnimations()
     {
         _bannerGuyAnimationPlayer.Play(BannerGuyAnimations.ShowBanner);
+
+        await ToSignal(GetTree().CreateTimer(1.7f), "timeout");
+        AudioManager.Instance?.PlayFlipSound();
+        await ToSignal(GetTree().CreateTimer(0.2f), "timeout");
+        AudioManager.Instance?.PlayFlightSound();
+
         await ToSignal(_bannerGuyAnimationPlayer, "animation_finished");
         _bannerGuyAnimationPlayer.Play(BannerGuyAnimations.AfterShow);
         await ToSignal(GetTree().CreateTimer(1.0f), "timeout");

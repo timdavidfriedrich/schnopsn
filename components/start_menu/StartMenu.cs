@@ -35,6 +35,7 @@ public partial class StartMenu : Panel
         _difficultyDisplay.DifficultyChanged += OnDifficultyChanged;
 
         InitDifficultyFromLastRound();
+        AudioManager.Instance?.PlayMenuMusic();
     }
 
     public override void _ExitTree()
@@ -64,6 +65,7 @@ public partial class StartMenu : Panel
 	{
         if (!_isReadyToStart) return;
         if (_isTransitioning) return;
+        AudioManager.Instance?.PlayButtonSound();
 		_difficultyManager.ToggleDifficulty();
 		_difficultyDisplay.SetDifficultyLevel(_difficultyManager.EnemyDifficulty);
 		GD.Print($"Enemy difficulty changed to {_difficultyManager.EnemyDifficulty}");
@@ -75,6 +77,7 @@ public partial class StartMenu : Panel
         if (!_isReadyToStart) return;
         if (_isTransitioning) return;
         _isTransitioning = true;
+        AudioManager.Instance?.PlayButtonSound();
         TransitionToGame();
     }
 

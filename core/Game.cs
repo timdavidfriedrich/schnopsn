@@ -88,6 +88,8 @@ public partial class Game : Panel
 
 		_difficultyManager = DifficultyManager.Instance;
 
+        AudioManager.Instance?.PlayGameMusic();
+
 		InitBummerlFromLastRound();
 
 		SubscribeToSignals();
@@ -522,7 +524,7 @@ public partial class Game : Panel
 			else
 				_bummerlManager.ReduceEnemyBummerl(gamePoints);
 
-			EndRoundOrGame();
+			EndRoundOrGame(playerIsWinner);
 			return;
 		}
 
@@ -576,9 +578,17 @@ public partial class Game : Panel
 	}
 
 
-	private void EndRoundOrGame()
+	private async void EndRoundOrGame(bool playerIsWinner)
 	{
 		GD.Print("End game or round...");
+		if (playerIsWinner)
+        {
+			AudioManager.Instance?.PlayWonSound();
+        }
+		else
+        {
+			AudioManager.Instance?.PlayLostSound();
+        }
 		bool hasPlayerWon = _bummerlManager.PlayerBummerl <= 0;
 		bool hasEnemyWon  = _bummerlManager.EnemyBummerl <= 0;
 		if (hasPlayerWon || hasEnemyWon)
@@ -587,6 +597,7 @@ public partial class Game : Panel
 		}
 		else
 		{
+			await AudioManager.Instance?.GetSoundFinishedSignal();
 			GetTree().ReloadCurrentScene();
 		}
 	}
@@ -1035,7 +1046,7 @@ public partial class Game : Panel
 		else
 			_bummerlManager.ReduceEnemyBummerl(gamePoints);
 
-		EndRoundOrGame();
+		EndRoundOrGame(playerIsWinner);
 		return true; // WICHTIG: Spiel wurde beendet
 	}
 

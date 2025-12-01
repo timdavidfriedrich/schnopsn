@@ -15,7 +15,7 @@
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r4riq"]
 bg_color = Color(0.14901961, 0.36078432, 0.25882354, 1)
 
-[node name="Game" type="Panel" node_paths=PackedStringArray("_playerHand", "_enemyHand", "_playerTrickPile", "_enemyTrickPile", "_playerTrickPileScore", "_playerBummerlCounter", "_enemyBummerlCounter", "_difficultyDisplay", "_playArea", "_drawPile")]
+[node name="Game" type="Panel" node_paths=PackedStringArray("_playerHand", "_enemyHand", "_playerTrickPile", "_enemyTrickPile", "_playerTrickPileScore", "_playerBummerlCounter", "_enemyBummerlCounter", "_playArea", "_drawPile")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -33,7 +33,6 @@ _enemyTrickPile = NodePath("VBoxContainer/HBoxContainer/CenterContainer/CardSize
 _playerTrickPileScore = NodePath("VBoxContainer/HBoxContainer3/CenterContainer2/CardSizedContainer/PlayerTrickPileScore")
 _playerBummerlCounter = NodePath("VBoxContainer/HBoxContainer3/MarginContainer/PlayerBummerlCounter")
 _enemyBummerlCounter = NodePath("VBoxContainer/HBoxContainer/MarginContainer/EnemyBummerlCounter")
-_difficultyDisplay = NodePath("")
 _playArea = NodePath("VBoxContainer/HBoxContainer2/CenterContainer2/CardSizedContainer/PlayArea")
 _drawPile = NodePath("VBoxContainer/HBoxContainer2/CenterContainer/CardSizedContainer/DrawPile")
 _cardScene = ExtResource("2_w2rrx")

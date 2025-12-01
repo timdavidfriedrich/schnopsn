@@ -2,6 +2,7 @@ namespace Schnopsn.components.trick_pile;
 
 using Godot;
 using Schnopsn.components.card;
+using Schnopsn.core;
 using Schnopsn.core.Utilities;
 
 public partial class TrickPile : CardReceiver
@@ -10,6 +11,8 @@ public partial class TrickPile : CardReceiver
 	{
 		base.ReceiveCard(card);
 		int index = GetChildCount();
+
+		AudioManager.Instance?.PlayFlightSound();
 
 		if (index <= 2)
 		{

@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 BummerlManager="*res://core/BummerlManager.cs"
 DifficultyManager="*res://core/DifficultyManager.cs"
+AudioManager="*res://core/AudioManager.tscn"
 
 [display]
 

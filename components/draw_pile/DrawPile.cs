@@ -2,6 +2,7 @@ namespace Schnopsn.components.draw_pile;
 
 using Godot;
 using Schnopsn.components.card;
+using Schnopsn.core;
 using Schnopsn.core.Utilities;
 using System.Collections.Generic;
 
@@ -76,6 +77,8 @@ public partial class DrawPile : CardReceiver
 		int topCardIndex = _cards.Count -1;
 		Card topCard = _cards[topCardIndex];
 		_cards.RemoveAt(topCardIndex);
+
+        AudioManager.Instance?.PlayFlightSound();
 		
 		if (topCard.IsFaceUp)
         {
@@ -106,6 +109,8 @@ public partial class DrawPile : CardReceiver
 	{
 		if (trumpCard == null)
 			return;
+
+        AudioManager.Instance?.PlayFlipSound();
 
 		trumpCard.FaceDown();
 
