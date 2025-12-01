@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://dq2wg67ju24d8" path="res://components/bummerl/assets/bummerl_bar.png" id="1_k61qk"]
 [ext_resource type="Texture2D" uid="uid://d15na5wo2q7uo" path="res://components/bummerl/assets/bummerl_marbles.png" id="2_tkxea"]
-[ext_resource type="Script" uid="uid://c4swkc1td2uth" path="res://components/bummerl/BummerlCounter.cs" id="3_h51nl"]
+[ext_resource type="Script" uid="uid://ba1d1mnaafmpr" path="res://components/bummerl/BummerlCounter.cs" id="3_h51nl"]
 
 [node name="BummerlCounter" type="TextureProgressBar"]
 offset_right = 126.0

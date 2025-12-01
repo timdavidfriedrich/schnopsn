@@ -1,7 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://b2ioo5yk4jywm"]
+[gd_scene load_steps=3 format=3 uid="uid://bijfqq4l66mx6"]
 
-[ext_resource type="Script" uid="uid://calhgpdevs4qx" path="res://components/card/Card.cs" id="1_6u4wf"]
-[ext_resource type="Texture2D" uid="uid://ccg7ife3qkdhm" path="res://components/card/assets/schellen_unter.png" id="1_d81rb"]
+[ext_resource type="Script" uid="uid://8fbh7cohhgwp" path="res://components/card/Card.cs" id="1_6u4wf"]
+[ext_resource type="Texture2D" uid="uid://bmx3mfi1wpm40" path="res://components/card/assets/schellen_unter.png" id="1_d81rb"]
 
 [node name="Card" type="TextureRect" node_paths=PackedStringArray("_shadow")]
 z_index = 1

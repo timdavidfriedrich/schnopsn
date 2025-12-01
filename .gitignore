@@ -4,7 +4,6 @@
 **/*csproj.old*
 .vscode/
 **/*.import
-**/*.cs.uid
 *.editorconfig
 export_presets.cfg
 **/*.tmp

@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://ddswxokemicwc"]
 
-[ext_resource type="Script" uid="uid://dxanecwg62ffp" path="res://components/trick_pile/TrickPile.cs" id="1_dkpdp"]
+[ext_resource type="Script" uid="uid://bl383oc37yxet" path="res://components/trick_pile/TrickPile.cs" id="1_dkpdp"]
 
 [node name="TrickPile" type="Control"]
 layout_mode = 3

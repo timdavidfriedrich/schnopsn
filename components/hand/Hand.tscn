@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dae8wqmuwipy1"]
 
-[ext_resource type="Script" uid="uid://ove3sqxoudnh" path="res://components/hand/Hand.cs" id="1_15m3w"]
+[ext_resource type="Script" uid="uid://do7rjgfayip6m" path="res://components/hand/Hand.cs" id="1_15m3w"]
 
 [node name="Hand" type="Control" node_paths=PackedStringArray("_cardContainer")]
 layout_mode = 3

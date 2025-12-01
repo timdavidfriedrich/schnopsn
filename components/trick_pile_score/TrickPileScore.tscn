@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://c283ubobrre2a"]
 
 [ext_resource type="FontFile" uid="uid://dk3ehrmqyhcn0" path="res://core/assets/fonts/jersey10_regular.ttf" id="1_nyh7m"]
-[ext_resource type="Script" uid="uid://j3627xrkt1df" path="res://components/trick_pile_score/TrickPileScore.cs" id="1_qkq5a"]
+[ext_resource type="Script" uid="uid://dd2j84prwl730" path="res://components/trick_pile_score/TrickPileScore.cs" id="1_qkq5a"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nyh7m"]
 bg_color = Color(0.6, 0.6, 0.6, 0)
