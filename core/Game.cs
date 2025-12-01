@@ -36,8 +36,6 @@ public partial class Game : Panel
 	[Export]
 	internal TrickPileScore _playerTrickPileScore;
 	[Export]
-	internal TrickPileScore _enemyTrickPileScore;
-	[Export]
 	internal BummerlCounter _playerBummerlCounter;
 	[Export]
 	internal BummerlCounter _enemyBummerlCounter;
@@ -630,7 +628,6 @@ public partial class Game : Panel
 	private void UpdateScoreUi()
 	{
 		_playerTrickPileScore.SetScore(GetTotalPoints(true));
-		_enemyTrickPileScore.SetScore(GetTotalPoints(false));
 	}
 
 	private void CloseTalon(bool closedByPlayer)

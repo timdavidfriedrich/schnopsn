@@ -16,7 +16,7 @@
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r4riq"]
 bg_color = Color(0.14901961, 0.36078432, 0.25882354, 1)
 
-[node name="Game" type="Panel" node_paths=PackedStringArray("_playerHand", "_enemyHand", "_playerTrickPile", "_enemyTrickPile", "_playerTrickPileScore", "_enemyTrickPileScore", "_playerBummerlCounter", "_enemyBummerlCounter", "_difficultyDisplay", "_playArea", "_drawPile")]
+[node name="Game" type="Panel" node_paths=PackedStringArray("_playerHand", "_enemyHand", "_playerTrickPile", "_enemyTrickPile", "_playerTrickPileScore", "_playerBummerlCounter", "_enemyBummerlCounter", "_difficultyDisplay", "_playArea", "_drawPile")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -32,7 +32,6 @@ _enemyHand = NodePath("VBoxContainer/CardSizedContainer/EnemyHand")
 _playerTrickPile = NodePath("VBoxContainer/HBoxContainer3/CenterContainer2/CardSizedContainer/PlayerTrickPile")
 _enemyTrickPile = NodePath("VBoxContainer/HBoxContainer/CenterContainer/CardSizedContainer/EnemyTrickPile")
 _playerTrickPileScore = NodePath("VBoxContainer/HBoxContainer3/CenterContainer2/CardSizedContainer/PlayerTrickPileScore")
-_enemyTrickPileScore = NodePath("VBoxContainer/HBoxContainer/CenterContainer/CardSizedContainer/EnemyTrickPileScore")
 _playerBummerlCounter = NodePath("VBoxContainer/HBoxContainer3/MarginContainer/PlayerBummerlCounter")
 _enemyBummerlCounter = NodePath("VBoxContainer/HBoxContainer/MarginContainer/VBoxContainer/EnemyBummerlCounter")
 _difficultyDisplay = NodePath("VBoxContainer/HBoxContainer/MarginContainer/VBoxContainer/DifficultyDisplay")
@@ -107,10 +106,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_vertical = 3
-
-[node name="EnemyTrickPileScore" parent="VBoxContainer/HBoxContainer/CenterContainer/CardSizedContainer" instance=ExtResource("9_qqyo8")]
-z_index = 1337
-layout_mode = 1
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
