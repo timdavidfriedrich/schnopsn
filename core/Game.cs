@@ -295,7 +295,7 @@ public partial class Game : Panel
 		if (!IsPlayLegal(hand, card))
 		{
 			GD.Print("Illegal move prevented (Farb-/Stich-/Trumpfzwang).");
-			// Karte bleibt einfach in der Hand; bei Spieler kann man zusätzlich UI machen.
+			card.PlayIllegalFeedbackAnimation();
 			return;
 		}
 

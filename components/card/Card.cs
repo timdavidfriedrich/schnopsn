@@ -1,8 +1,7 @@
 namespace Schnopsn.components.card;
 
-using Godot;
-using System.Drawing;
 using System.Threading.Tasks;
+using Godot;
 
 
 public partial class Card : TextureRect
@@ -34,6 +33,7 @@ public partial class Card : TextureRect
     private const float _selectedScaleMultiplier = 1.25f;
     private const float _selectedPositionOffset = 10.0f;
 	private const float _maxRotationDegrees = 12f;
+    private const float _illegalAnimationDuration = 0.25f;
 
     private Vector2 _viewportCenter;
 
@@ -232,5 +232,49 @@ public partial class Card : TextureRect
 			.SetTrans(Tween.TransitionType.Quad)
 			.SetEase(Tween.EaseType.Out);
 	}
+
+    private Tween _illegalFeedbackTween;
+
+    public async void PlayIllegalFeedbackAnimation()
+    {
+        if (_illegalFeedbackTween != null && _illegalFeedbackTween.IsRunning())
+        {
+            return;
+        }
+
+        GD.Print("Playing illegal move feedback animation.");
+
+        var singleDuration = _illegalAnimationDuration / 2f;
+        var originalScaleY = Scale.Y;
+        var originalRotationDegrees = RotationDegrees;
+
+        _illegalFeedbackTween?.Kill();
+
+        _illegalFeedbackTween = GetTree().CreateTween();
+        _illegalFeedbackTween.SetParallel(true);
+        _illegalFeedbackTween.SetEase(Tween.EaseType.InOut);
+        _illegalFeedbackTween.SetTrans(Tween.TransitionType.Quad);
+        _illegalFeedbackTween.TweenProperty(this, "modulate", new Color(1, 0.5f, 0.5f), singleDuration);
+        _illegalFeedbackTween.TweenProperty(this, "scale:y", originalScaleY * 0.9f, singleDuration);
+        _illegalFeedbackTween.TweenProperty(this, "rotation_degrees", originalRotationDegrees + 10f, singleDuration / 4f)
+            .SetTrans(Tween.TransitionType.Elastic)
+            .SetEase(Tween.EaseType.InOut);
+        _illegalFeedbackTween.TweenProperty(this, "rotation_degrees", originalRotationDegrees - 10f, singleDuration / 4f)
+            .SetTrans(Tween.TransitionType.Elastic)
+            .SetEase(Tween.EaseType.InOut);
+
+        await ToSignal(_illegalFeedbackTween, Tween.SignalName.Finished);
+    
+        _illegalFeedbackTween = GetTree().CreateTween();
+        _illegalFeedbackTween.SetParallel(true);
+        _illegalFeedbackTween.SetEase(Tween.EaseType.InOut);
+        _illegalFeedbackTween.SetTrans(Tween.TransitionType.Quad);
+        _illegalFeedbackTween.TweenProperty(this, "modulate", new Color(1, 1, 1), singleDuration);
+        _illegalFeedbackTween.TweenProperty(this, "scale:y", originalScaleY, singleDuration);
+        _illegalFeedbackTween.TweenProperty(this, "rotation_degrees", originalRotationDegrees, singleDuration / 2f)
+            .SetTrans(Tween.TransitionType.Elastic)
+            .SetEase(Tween.EaseType.InOut);
+        await ToSignal(_illegalFeedbackTween, Tween.SignalName.Finished);
+    }
 }
 
