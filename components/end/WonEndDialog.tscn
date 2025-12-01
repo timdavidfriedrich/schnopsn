@@ -1,0 +1,38 @@
+[gd_scene load_steps=5 format=3 uid="uid://8wxgd8p8rsnk"]
+
+[ext_resource type="Script" uid="uid://figjdlsnuf84" path="res://components/end/WonEndDialog.cs" id="1_r51j7"]
+[ext_resource type="Texture2D" uid="uid://ccg1obxnjhet" path="res://components/end/assets/won_end_dialog.png" id="3_w42t1"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8us7w"]
+bg_color = Color(0.003921569, 0.003921569, 0.003921569, 0.61960787)
+
+[node name="WonEndDialog" type="Panel"]
+z_index = 4096
+z_as_relative = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_8us7w")
+script = ExtResource("1_r51j7")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 64
+theme_override_constants/margin_top = 64
+theme_override_constants/margin_right = 64
+theme_override_constants/margin_bottom = 64
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer"]
+layout_mode = 2
+texture = ExtResource("3_w42t1")
+expand_mode = 4
+stretch_mode = 5

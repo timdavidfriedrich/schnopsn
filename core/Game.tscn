@@ -2,8 +2,10 @@
 
 [ext_resource type="Script" uid="uid://2j0qfo1cltqf" path="res://core/Game.cs" id="1_cmax4"]
 [ext_resource type="PackedScene" uid="uid://bijfqq4l66mx6" path="res://components/card/Card.tscn" id="2_w2rrx"]
+[ext_resource type="PackedScene" uid="uid://8wxgd8p8rsnk" path="res://components/end/WonEndDialog.tscn" id="3_84nqf"]
 [ext_resource type="PackedScene" uid="uid://dae8wqmuwipy1" path="res://components/hand/Hand.tscn" id="3_r4riq"]
 [ext_resource type="PackedScene" uid="uid://d34nm87qiri50" path="res://components/play_area/PlayArea.tscn" id="4_2obkm"]
+[ext_resource type="PackedScene" uid="uid://cdnrakcaj2trd" path="res://components/end/LostEndDialog.tscn" id="4_q0471"]
 [ext_resource type="PackedScene" uid="uid://drmhvw5fjh6n3" path="res://components/draw_pile/DrawPile.tscn" id="5_w2rrx"]
 [ext_resource type="PackedScene" uid="uid://bwpix0hpllui0" path="res://components/CardSizedContainer.tscn" id="6_2obkm"]
 [ext_resource type="PackedScene" uid="uid://ddswxokemicwc" path="res://components/trick_pile/TrickPile.tscn" id="6_r4riq"]
@@ -35,6 +37,8 @@ _enemyBummerlCounter = NodePath("VBoxContainer/HBoxContainer/MarginContainer/Ene
 _playArea = NodePath("VBoxContainer/HBoxContainer2/CenterContainer2/CardSizedContainer/PlayArea")
 _drawPile = NodePath("VBoxContainer/HBoxContainer2/CenterContainer/CardSizedContainer/DrawPile")
 _cardScene = ExtResource("2_w2rrx")
+_wonEndDialog = ExtResource("3_84nqf")
+_lostEndDialog = ExtResource("4_q0471")
 metadata/_edit_use_anchors_ = true
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]

@@ -12,6 +12,7 @@ using Schnopsn.components.trick_pile;
 using System.Threading.Tasks;
 using System.Linq;
 using Schnopsn.Components.bummerl;
+using Schnopsn.components.end;
 
 public enum Difficulty
 {
@@ -51,11 +52,11 @@ public partial class Game : Panel
 	[Export]
 	internal Difficulty EnemyDifficulty = Difficulty.Medium;
 
-	// [Export]
-	// internal PackedScene _endDialogWon;
+	[Export]
+	private PackedScene _wonEndDialog;
 
-	// [Export]
-	// internal PackedScene _endDialogLost;
+	[Export]
+	private PackedScene _lostEndDialog;
 
 	internal BummerlManager _bummerlManager;
 
@@ -541,7 +542,6 @@ public partial class Game : Panel
 
 	private void OnDrawPileClicked()
 	{
-		ShowEndDialog(true);
 		GD.Print("Draw pile clicked.");
 
 		// Talon schon zugedreht? -> nichts tun
@@ -1035,12 +1035,12 @@ public partial class Game : Panel
 
 	private void ShowEndDialog(bool playerWon)
 	{
-		// EndDialog dialog = playerWon 
-		// 	? _endDialogWon.Instantiate<EndDialog>()
-		// 	: _endDialogLost.Instantiate<EndDialog>();
-		// GetTree().Root.AddChild(dialog);
-		// dialog.ZIndex = 4096;
-		// dialog.SetAnchorsPreset(LayoutPreset.FullRect);
+		Panel dialog = playerWon
+			? _wonEndDialog.Instantiate<Panel>()
+			: _lostEndDialog.Instantiate<Panel>();
+		AddChild(dialog);
+		dialog.ZIndex = 4096;
+		dialog.SetAnchorsPreset(LayoutPreset.FullRect);
 	}
 
 }
