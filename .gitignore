@@ -1,5 +1,7 @@
 .godot/
 /android/
+**/*.apk*
+**/*csproj.old*
 .vscode/
 **/*.import
 **/*.cs.uid
