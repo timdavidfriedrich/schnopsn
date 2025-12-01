@@ -1,14 +1,15 @@
-[gd_scene load_steps=6 format=3 uid="uid://d213n3npctdla"]
+[gd_scene load_steps=7 format=3 uid="uid://d213n3npctdla"]
 
 [ext_resource type="Script" uid="uid://bmakjrxlf1usc" path="res://components/start_menu/StartMenu.cs" id="1_jcce7"]
 [ext_resource type="PackedScene" uid="uid://c41phke27qcnw" path="res://core/Game.tscn" id="2_h2vpd"]
+[ext_resource type="PackedScene" uid="uid://p6gl56h7x4b5" path="res://components/difficulty/DifficultyDisplay.tscn" id="3_h2vpd"]
 [ext_resource type="PackedScene" uid="uid://bct7cogr0nhy" path="res://components/start_menu/StartMenuCard.tscn" id="3_vh4q4"]
-[ext_resource type="FontFile" uid="uid://dk3ehrmqyhcn0" path="res://core/assets/fonts/jersey10_regular.ttf" id="3_ydsaa"]
+[ext_resource type="PackedScene" uid="uid://ce0qpsiiyxor8" path="res://components/start_menu/StartButton.tscn" id="5_j2eq1"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5nhq7"]
 bg_color = Color(0.14901961, 0.36078432, 0.25882354, 1)
 
-[node name="StartMenuTEST" type="Panel" node_paths=PackedStringArray("_startMenuCard", "_tapToStartLabel")]
+[node name="StartMenuTEST" type="Panel" node_paths=PackedStringArray("_startMenuCard", "_startButton", "_difficultyDisplay")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -21,7 +22,8 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_5nhq7")
 script = ExtResource("1_jcce7")
 _startMenuCard = NodePath("MarginContainer/VBoxContainer/StartMenuCard")
 _gameScene = ExtResource("2_h2vpd")
-_tapToStartLabel = NodePath("MarginContainer/VBoxContainer/RichTextLabel")
+_startButton = NodePath("MarginContainer/VBoxContainer/AspectRatioContainer/StartButton")
+_difficultyDisplay = NodePath("MarginContainer/VBoxContainer/CenterContainer/DifficultyDisplay")
 metadata/_edit_use_anchors_ = true
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
@@ -35,23 +37,41 @@ pivot_offset = Vector2(-548, 1657)
 theme_override_constants/margin_left = 32
 theme_override_constants/margin_top = 32
 theme_override_constants/margin_right = 32
-theme_override_constants/margin_bottom = 128
+theme_override_constants/margin_bottom = 64
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="SizedBox2" type="Control" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
 
 [node name="StartMenuCard" parent="MarginContainer/VBoxContainer" instance=ExtResource("3_vh4q4")]
 layout_mode = 2
 
 [node name="SizedBox" type="Control" parent="MarginContainer/VBoxContainer"]
-custom_minimum_size = Vector2(0, 64)
+custom_minimum_size = Vector2(0, 4)
 layout_mode = 2
 
-[node name="RichTextLabel" type="RichTextLabel" parent="MarginContainer/VBoxContainer"]
+[node name="AspectRatioContainer" type="AspectRatioContainer" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
-theme_override_fonts/normal_font = ExtResource("3_ydsaa")
-theme_override_font_sizes/normal_font_size = 24
-text = "Tippe zum Spielen..."
-fit_content = true
-horizontal_alignment = 1
-vertical_alignment = 1
+size_flags_horizontal = 3
+ratio = 5.0
+stretch_mode = 0
+
+[node name="StartButton" parent="MarginContainer/VBoxContainer/AspectRatioContainer" instance=ExtResource("5_j2eq1")]
+layout_mode = 2
+size_flags_vertical = 1
+
+[node name="SizedBox3" type="Control" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="DifficultyDisplay" parent="MarginContainer/VBoxContainer/CenterContainer" instance=ExtResource("3_h2vpd")]
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 1

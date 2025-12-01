@@ -12,7 +12,6 @@ using Schnopsn.components.trick_pile;
 using System.Threading.Tasks;
 using System.Linq;
 using Schnopsn.Components.bummerl;
-using Schnopsn.components.difficulty;
 
 public enum Difficulty
 {
@@ -39,8 +38,6 @@ public partial class Game : Panel
 	internal BummerlCounter _playerBummerlCounter;
 	[Export]
 	internal BummerlCounter _enemyBummerlCounter;
-	[Export]
-	internal DifficultyDisplay _difficultyDisplay;
 	[Export]
 	internal PlayArea _playArea;
 	[Export]
@@ -89,7 +86,8 @@ public partial class Game : Panel
 		// * Allow Game background panel to handle touch input
 		MouseFilter = MouseFilterEnum.Stop; 
 
-		InitDifficultyFromLastRound();
+		_difficultyManager = DifficultyManager.Instance;
+
 		InitBummerlFromLastRound();
 
 		SubscribeToSignals();
@@ -113,17 +111,6 @@ public partial class Game : Panel
 		UnsubscribeFromSignals();
 	}
 
-	private void InitDifficultyFromLastRound()
-	{
-		_difficultyManager = DifficultyManager.Instance;
-		if (_difficultyManager == null)
-		{
-			GD.PrintErr("DifficultyManager instance not found!");
-			return;
-		}
-		_difficultyDisplay.SetDifficultyLevel(_difficultyManager.EnemyDifficulty);
-	}
-
 	private void InitBummerlFromLastRound()
     {
 		_bummerlManager = BummerlManager.Instance;
@@ -142,7 +129,6 @@ public partial class Game : Panel
 		_playerHand.WantsToPlayCard += OnHandWantsToPlayCard;
 		_enemyHand.WantsToPlayCard += OnHandWantsToPlayCard;
 		_playArea.BothCardsPlayed += OnBothCardsPlayed;
-		_difficultyDisplay.DifficultyChanged += OnDifficultyChanged;
 	}
 
 	private void UnsubscribeFromSignals()
@@ -151,7 +137,6 @@ public partial class Game : Panel
 		_playerHand.WantsToPlayCard -= OnHandWantsToPlayCard;
 		_enemyHand.WantsToPlayCard -= OnHandWantsToPlayCard;
 		_playArea.BothCardsPlayed -= OnBothCardsPlayed;
-		_difficultyDisplay.DifficultyChanged -= OnDifficultyChanged;
 	}
 
 	private void CreateAndShuffleCards()
@@ -588,13 +573,6 @@ public partial class Game : Panel
 		}
 
 		CloseTalon(true);
-	}
-
-	private void OnDifficultyChanged()
-	{
-		_difficultyManager.ToggleDifficulty();
-		_difficultyDisplay.SetDifficultyLevel(_difficultyManager.EnemyDifficulty);
-		GD.Print($"Enemy difficulty changed to {_difficultyManager.EnemyDifficulty}");
 	}
 
 
