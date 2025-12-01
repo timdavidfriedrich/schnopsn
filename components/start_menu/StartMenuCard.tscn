@@ -63,22 +63,6 @@ tracks/0/keys = {
 "values": [ExtResource("2_jdhqr")]
 }
 
-[sub_resource type="Animation" id="Animation_yldxw"]
-resource_name = "show_banner"
-length = 2.6
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("TextureRect:texture")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
-"update": 0,
-"values": [ExtResource("2_yldxw"), ExtResource("4_sgiwt"), ExtResource("5_fural"), ExtResource("5_fural"), ExtResource("6_qw3mj"), ExtResource("7_k30a4"), ExtResource("8_ydrcj"), ExtResource("9_1sosn"), ExtResource("10_jdsbs"), ExtResource("11_3pabs"), ExtResource("12_4o0gw"), ExtResource("13_5r356"), ExtResource("14_7uwjk"), ExtResource("15_tcj2e"), ExtResource("16_kww8s"), ExtResource("16_yhtgh"), ExtResource("18_qr1bi"), ExtResource("19_h2epw"), ExtResource("20_uxb4d"), ExtResource("21_rak3g"), ExtResource("22_7hcqj"), ExtResource("23_uama7"), ExtResource("24_i8ndg"), ExtResource("25_afr0s"), ExtResource("26_3mr2w"), ExtResource("27_orbbn")]
-}
-
 [sub_resource type="Animation" id="Animation_orbbn"]
 resource_name = "after_show"
 length = 2.0
@@ -94,6 +78,22 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
 "update": 0,
 "values": [ExtResource("28_qwfv3"), ExtResource("29_8fxk1"), ExtResource("30_ddm15"), ExtResource("31_boyq3"), ExtResource("32_6b2fb"), ExtResource("33_5j7m1"), ExtResource("34_gdnyv"), ExtResource("35_q2ceo"), ExtResource("36_kmuj4"), ExtResource("37_qp4u1"), ExtResource("38_3qo7w"), ExtResource("39_5r7cp"), ExtResource("40_46v2a"), ExtResource("41_cugv8"), ExtResource("42_dfl6i"), ExtResource("43_norvv"), ExtResource("44_6iani"), ExtResource("45_qrk78"), ExtResource("46_s868p"), ExtResource("47_gntks")]
+}
+
+[sub_resource type="Animation" id="Animation_yldxw"]
+resource_name = "show_banner"
+length = 2.6
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [ExtResource("2_yldxw"), ExtResource("4_sgiwt"), ExtResource("5_fural"), ExtResource("5_fural"), ExtResource("6_qw3mj"), ExtResource("7_k30a4"), ExtResource("8_ydrcj"), ExtResource("9_1sosn"), ExtResource("10_jdsbs"), ExtResource("11_3pabs"), ExtResource("12_4o0gw"), ExtResource("13_5r356"), ExtResource("14_7uwjk"), ExtResource("15_tcj2e"), ExtResource("16_kww8s"), ExtResource("16_yhtgh"), ExtResource("18_qr1bi"), ExtResource("19_h2epw"), ExtResource("20_uxb4d"), ExtResource("21_rak3g"), ExtResource("22_7hcqj"), ExtResource("23_uama7"), ExtResource("24_i8ndg"), ExtResource("25_afr0s"), ExtResource("26_3mr2w"), ExtResource("27_orbbn")]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_jdhqr"]

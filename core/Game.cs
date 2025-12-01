@@ -51,6 +51,12 @@ public partial class Game : Panel
 	[Export]
 	internal Difficulty EnemyDifficulty = Difficulty.Medium;
 
+	// [Export]
+	// internal PackedScene _endDialogWon;
+
+	// [Export]
+	// internal PackedScene _endDialogLost;
+
 	internal BummerlManager _bummerlManager;
 
 	internal Card[] _cards;
@@ -508,7 +514,7 @@ public partial class Game : Panel
 			else
 				_bummerlManager.ReduceEnemyBummerl(gamePoints);
 
-			ResetGame();
+			EndRoundOrGame();
 			return;
 		}
 
@@ -535,6 +541,7 @@ public partial class Game : Panel
 
 	private void OnDrawPileClicked()
 	{
+		ShowEndDialog(true);
 		GD.Print("Draw pile clicked.");
 
 		// Talon schon zugedreht? -> nichts tun
@@ -562,10 +569,19 @@ public partial class Game : Panel
 	}
 
 
-	private void ResetGame()
+	private void EndRoundOrGame()
 	{
-		GD.Print("Resetting game...");
-		GetTree().ReloadCurrentScene();
+		GD.Print("End game or round...");
+		bool hasPlayerWon = _bummerlManager.PlayerBummerl <= 0;
+		bool hasEnemyWon  = _bummerlManager.EnemyBummerl <= 0;
+		if (hasPlayerWon || hasEnemyWon)
+		{
+			ShowEndDialog(hasPlayerWon);
+		}
+		else
+		{
+			GetTree().ReloadCurrentScene();
+		}
 	}
 
 
@@ -1013,8 +1029,18 @@ public partial class Game : Panel
 		else
 			_bummerlManager.ReduceEnemyBummerl(gamePoints);
 
-		ResetGame();
+		EndRoundOrGame();
 		return true; // WICHTIG: Spiel wurde beendet
+	}
+
+	private void ShowEndDialog(bool playerWon)
+	{
+		// EndDialog dialog = playerWon 
+		// 	? _endDialogWon.Instantiate<EndDialog>()
+		// 	: _endDialogLost.Instantiate<EndDialog>();
+		// GetTree().Root.AddChild(dialog);
+		// dialog.ZIndex = 4096;
+		// dialog.SetAnchorsPreset(LayoutPreset.FullRect);
 	}
 
 }
