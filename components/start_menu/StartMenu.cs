@@ -44,6 +44,15 @@ public partial class StartMenu : Panel
 		_difficultyDisplay.DifficultyChanged -= OnDifficultyChanged;
     }
 
+    public override void _Notification(int what)
+    {
+        if (what == NotificationWMGoBackRequest)
+        {
+            GetViewport()?.SetInputAsHandled();
+            GetTree()?.Quit();
+        }
+    }
+
     private void OnReadyToStart()
     {
         _isReadyToStart = true;
@@ -53,10 +62,21 @@ public partial class StartMenu : Panel
 
     private void OnDifficultyChanged()
 	{
+        if (!_isReadyToStart) return;
+        if (_isTransitioning) return;
 		_difficultyManager.ToggleDifficulty();
 		_difficultyDisplay.SetDifficultyLevel(_difficultyManager.EnemyDifficulty);
 		GD.Print($"Enemy difficulty changed to {_difficultyManager.EnemyDifficulty}");
 	}
+
+
+        private void OnStartButtonClicked()
+    {
+        if (!_isReadyToStart) return;
+        if (_isTransitioning) return;
+        _isTransitioning = true;
+        TransitionToGame();
+    }
 
     private void InitDifficultyFromLastRound()
 	{
@@ -87,22 +107,6 @@ public partial class StartMenu : Panel
             .SetTrans(Tween.TransitionType.Quad)
             .SetEase(Tween.EaseType.InOut);
         await ToSignal(tween, Tween.SignalName.Finished);
-    }
-
-    private void OnStartButtonClicked()
-    {
-        if (_isTransitioning) return;
-        _isTransitioning = true;
-        TransitionToGame();
-    }
-
-    public override void _Notification(int what)
-    {
-        if (what == NotificationWMGoBackRequest)
-        {
-            GetViewport()?.SetInputAsHandled();
-            GetTree()?.Quit();
-        }
     }
 
     private async void TransitionToGame()
