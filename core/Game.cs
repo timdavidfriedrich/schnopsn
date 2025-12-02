@@ -281,8 +281,11 @@ public partial class Game : Panel
 			trumpCard.FaceUp();
 
 			card.WithData(oldTrumpColor, oldTrumpValue);
-			card.FaceUp();
-
+			if (hand == _playerHand)
+				card.FaceUp();
+			else
+				card.FaceDown();
+				
 			card.Deselect();
 			hand.OnTouchOutside();
 
@@ -291,9 +294,12 @@ public partial class Game : Panel
 			if (hand == _enemyHand)
 			{
 				await ToSignal(GetTree().CreateTimer(0.3f), Timer.SignalName.Timeout);
-				// Gegner soll danach eine Karte spielen
 				PlayEnemyTurnSecondCardIfNeeded();
 			}
+
+			_isFirstCardofTrick = false;
+			_currentLeadHand = hand;
+			_currentLeadCard = card;
 
 			return;
 		}
