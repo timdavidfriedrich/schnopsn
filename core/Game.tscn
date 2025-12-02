@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://c41phke27qcnw"]
+[gd_scene load_steps=14 format=3 uid="uid://c41phke27qcnw"]
 
 [ext_resource type="Script" uid="uid://2j0qfo1cltqf" path="res://core/Game.cs" id="1_cmax4"]
 [ext_resource type="PackedScene" uid="uid://bijfqq4l66mx6" path="res://components/card/Card.tscn" id="2_w2rrx"]
@@ -11,8 +11,9 @@
 [ext_resource type="PackedScene" uid="uid://ddswxokemicwc" path="res://components/trick_pile/TrickPile.tscn" id="6_r4riq"]
 [ext_resource type="PackedScene" uid="uid://dg6fkm22fgx3k" path="res://components/bummerl/BummerlCounter.tscn" id="8_e5e06"]
 [ext_resource type="PackedScene" uid="uid://c283ubobrre2a" path="res://components/trick_pile_score/TrickPileScore.tscn" id="9_qqyo8"]
+[ext_resource type="Texture2D" uid="uid://dyepgn3rw0bdx" path="res://core/assets/background/game_center_background.png" id="12_58pcf"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r4riq"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_q0471"]
 bg_color = Color(0.14901961, 0.36078432, 0.25882354, 1)
 
 [node name="Game" type="Panel" node_paths=PackedStringArray("_playerHand", "_enemyHand", "_playerTrickPile", "_enemyTrickPile", "_playerTrickPileScore", "_playerBummerlCounter", "_enemyBummerlCounter", "_playArea", "_drawPile")]
@@ -24,7 +25,7 @@ grow_vertical = 2
 pivot_offset = Vector2(3092, 1731)
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_r4riq")
+theme_override_styles/panel = SubResource("StyleBoxFlat_q0471")
 script = ExtResource("1_cmax4")
 _playerHand = NodePath("VBoxContainer/CardSizedContainer2/PlayerHand")
 _enemyHand = NodePath("VBoxContainer/CardSizedContainer/EnemyHand")
@@ -39,6 +40,21 @@ _cardScene = ExtResource("2_w2rrx")
 _wonEndDialog = ExtResource("3_84nqf")
 _lostEndDialog = ExtResource("4_q0471")
 metadata/_edit_use_anchors_ = true
+
+[node name="CenterContainer" type="AspectRatioContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextureRect" type="TextureRect" parent="CenterContainer"]
+custom_minimum_size = Vector2(256, 256)
+layout_mode = 2
+texture = ExtResource("12_58pcf")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 1

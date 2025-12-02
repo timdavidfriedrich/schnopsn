@@ -1,13 +1,14 @@
-[gd_scene load_steps=7 format=3 uid="uid://d213n3npctdla"]
+[gd_scene load_steps=8 format=3 uid="uid://d213n3npctdla"]
 
+[ext_resource type="Texture2D" uid="uid://wa2b7wns2wjo" path="res://components/start_menu/assets/background/menu_background.png" id="1_j2eq1"]
 [ext_resource type="Script" uid="uid://bmakjrxlf1usc" path="res://components/start_menu/StartMenu.cs" id="1_jcce7"]
 [ext_resource type="PackedScene" uid="uid://c41phke27qcnw" path="res://core/Game.tscn" id="2_h2vpd"]
 [ext_resource type="PackedScene" uid="uid://p6gl56h7x4b5" path="res://components/difficulty/DifficultyDisplay.tscn" id="3_h2vpd"]
 [ext_resource type="PackedScene" uid="uid://bct7cogr0nhy" path="res://components/start_menu/StartMenuCard.tscn" id="3_vh4q4"]
 [ext_resource type="PackedScene" uid="uid://ce0qpsiiyxor8" path="res://components/start_menu/StartButton.tscn" id="5_j2eq1"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5nhq7"]
-bg_color = Color(0.14901961, 0.36078432, 0.25882354, 1)
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_g7iqx"]
+texture = ExtResource("1_j2eq1")
 
 [node name="StartMenuTEST" type="Panel" node_paths=PackedStringArray("_startMenuCard", "_startButton", "_difficultyDisplay")]
 anchors_preset = 15
@@ -18,7 +19,7 @@ grow_vertical = 2
 pivot_offset = Vector2(1316, 1060)
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_5nhq7")
+theme_override_styles/panel = SubResource("StyleBoxTexture_g7iqx")
 script = ExtResource("1_jcce7")
 _startMenuCard = NodePath("MarginContainer/VBoxContainer/StartMenuCard")
 _gameScene = ExtResource("2_h2vpd")
