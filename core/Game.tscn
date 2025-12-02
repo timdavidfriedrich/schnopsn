@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://c41phke27qcnw"]
+[gd_scene load_steps=16 format=3 uid="uid://c41phke27qcnw"]
 
 [ext_resource type="Script" uid="uid://2j0qfo1cltqf" path="res://core/Game.cs" id="1_cmax4"]
 [ext_resource type="PackedScene" uid="uid://bijfqq4l66mx6" path="res://components/card/Card.tscn" id="2_w2rrx"]
@@ -12,11 +12,13 @@
 [ext_resource type="PackedScene" uid="uid://dg6fkm22fgx3k" path="res://components/bummerl/BummerlCounter.tscn" id="8_e5e06"]
 [ext_resource type="PackedScene" uid="uid://c283ubobrre2a" path="res://components/trick_pile_score/TrickPileScore.tscn" id="9_qqyo8"]
 [ext_resource type="Texture2D" uid="uid://dyepgn3rw0bdx" path="res://core/assets/background/game_center_background.png" id="12_58pcf"]
+[ext_resource type="Texture2D" uid="uid://crtagab5xqrex" path="res://core/assets/buttons/close_button.png" id="13_jqpug"]
+[ext_resource type="Texture2D" uid="uid://dslm24xrmo8yt" path="res://core/assets/buttons/close_button_pressed.png" id="14_qj78y"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_q0471"]
 bg_color = Color(0.14901961, 0.36078432, 0.25882354, 1)
 
-[node name="Game" type="Panel" node_paths=PackedStringArray("_playerHand", "_enemyHand", "_playerTrickPile", "_enemyTrickPile", "_playerTrickPileScore", "_playerBummerlCounter", "_enemyBummerlCounter", "_playArea", "_drawPile")]
+[node name="Game" type="Panel" node_paths=PackedStringArray("_playerHand", "_enemyHand", "_playerTrickPile", "_enemyTrickPile", "_playerTrickPileScore", "_playerBummerlCounter", "_enemyBummerlCounter", "_playArea", "_drawPile", "_closeButton")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -39,9 +41,10 @@ _drawPile = NodePath("VBoxContainer/HBoxContainer2/CenterContainer/CardSizedCont
 _cardScene = ExtResource("2_w2rrx")
 _wonEndDialog = ExtResource("3_84nqf")
 _lostEndDialog = ExtResource("4_q0471")
+_closeButton = NodePath("HBoxContainer/AspectRatioContainer/CloseButton")
 metadata/_edit_use_anchors_ = true
 
-[node name="CenterContainer" type="AspectRatioContainer" parent="."]
+[node name="AspectRatioContainer" type="AspectRatioContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -49,7 +52,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="TextureRect" type="TextureRect" parent="CenterContainer"]
+[node name="CenterBackground" type="TextureRect" parent="AspectRatioContainer"]
 custom_minimum_size = Vector2(256, 256)
 layout_mode = 2
 texture = ExtResource("12_58pcf")
@@ -199,3 +202,33 @@ layout_mode = 1
 size_flags_horizontal = 4
 size_flags_vertical = 8
 _isPlayerHand = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 0.1
+offset_left = 24.0
+offset_top = 48.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="AspectRatioContainer" type="AspectRatioContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+stretch_mode = 0
+
+[node name="CloseButton" type="TextureButton" parent="HBoxContainer/AspectRatioContainer"]
+z_index = 4096
+layout_mode = 2
+texture_normal = ExtResource("13_jqpug")
+texture_pressed = ExtResource("14_qj78y")
+texture_disabled = ExtResource("14_qj78y")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Spacer" type="Control" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 7.0

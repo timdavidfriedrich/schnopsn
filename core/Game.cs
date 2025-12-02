@@ -52,6 +52,9 @@ public partial class Game : Panel
 	[Export]
 	private PackedScene _lostEndDialog;
 
+	[Export]
+	private TextureButton _closeButton;
+
 	internal BummerlManager _bummerlManager;
 
 	internal DifficultyManager _difficultyManager;
@@ -131,6 +134,7 @@ public partial class Game : Panel
 		_playerHand.WantsToPlayCard += OnHandWantsToPlayCard;
 		_enemyHand.WantsToPlayCard += OnHandWantsToPlayCard;
 		_playArea.BothCardsPlayed += OnBothCardsPlayed;
+		_closeButton.Pressed += OnCloseButtonClicked;
 	}
 
 	private void UnsubscribeFromSignals()
@@ -139,6 +143,7 @@ public partial class Game : Panel
 		_playerHand.WantsToPlayCard -= OnHandWantsToPlayCard;
 		_enemyHand.WantsToPlayCard -= OnHandWantsToPlayCard;
 		_playArea.BothCardsPlayed -= OnBothCardsPlayed;
+		_closeButton.Pressed -= OnCloseButtonClicked;
 	}
 
 	private void CreateAndShuffleCards()
@@ -576,6 +581,12 @@ public partial class Game : Panel
 
 		CloseTalon(true);
 	}
+
+
+	private void OnCloseButtonClicked()
+    {
+		GetTree()?.ChangeSceneToFile("res://components/start_menu/StartMenu.tscn");
+    }
 
 
 	private async void EndRoundOrGame(bool playerIsWinner)
