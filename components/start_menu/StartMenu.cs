@@ -57,6 +57,7 @@ public partial class StartMenu : Panel
     private void OnReadyToStart()
     {
         _isReadyToStart = true;
+        AudioManager.Instance?.PlayFlipSound();
         StartButtonFadeInAnimation();
         DifficultyDisplayFadeInAnimation();
     }

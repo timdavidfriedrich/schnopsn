@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://f5ppldpo3kd1" path="res://components/start_menu/StartButton.cs" id="1_6jifm"]
 [ext_resource type="Texture2D" uid="uid://dpn2ic7h5roe5" path="res://components/start_menu/assets/buttons/start_button.png" id="1_rkppb"]
-[ext_resource type="Texture2D" uid="uid://bu24ogywgyn7r" path="res://components/start_menu/assets/buttons/start_button_pressed.png" id="2_3pyxe"]
+[ext_resource type="Texture2D" uid="uid://3v05fcgl88vr" path="res://components/start_menu/assets/buttons/start_button_pressed.png" id="2_3pyxe"]
 
 [node name="StartButton" type="Control" node_paths=PackedStringArray("_button")]
 layout_mode = 3
