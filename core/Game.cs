@@ -297,9 +297,10 @@ public partial class Game : Panel
 				PlayEnemyTurnSecondCardIfNeeded();
 			}
 
-			_isFirstCardofTrick = false;
-			_currentLeadHand = hand;
-			_currentLeadCard = card;
+			// ! THIS CAUSED A BUG WHERE THE ENEMY WON'T PLAY ANYMORE
+			// _isFirstCardofTrick = false;
+			// _currentLeadHand = hand;
+			// _currentLeadCard = card;
 
 			return;
 		}
@@ -591,6 +592,7 @@ public partial class Game : Panel
 
 	private void OnCloseButtonClicked()
     {
+		BummerlManager.Instance.ResetAllBummerl();
 		GetTree()?.ChangeSceneToFile("res://components/start_menu/StartMenu.tscn");
     }
 
