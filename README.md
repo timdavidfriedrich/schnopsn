@@ -4,6 +4,12 @@
 
 The game is designed as a casual yet mentally stimulating experience where the player competes against an AI opponent to reach 66 points before the other, utilizing German-suited cards (Herz, Schellen, Eichel, Pik).
 
+<p float="left">
+  <img width="20%" style="margin:60px;" alt="Main menu" src="https://github.com/user-attachments/assets/d919766a-5a89-4549-9a54-3fbb2b4c2996" />
+  <img width="20%" alt="Gameplay screenshot" src="https://github.com/user-attachments/assets/2bce66b2-ee07-4bf5-9414-c409a436e418" />
+</p>
+
+
 ### Key Features & Distinctions
 
 **1. Traditional Gameplay meets Retro Digital Esthetics**
