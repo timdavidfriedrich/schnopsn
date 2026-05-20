@@ -1,0 +1,1 @@
+Traditional Austrian card game Schnapsen with retro pixel art and a tough AI.

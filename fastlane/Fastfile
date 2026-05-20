@@ -1,0 +1,44 @@
+default_platform(:android)
+
+platform :android do
+  desc "Upload signed AAB + metadata to Google Play internal testing track"
+  lane :internal do
+    upload_to_play_store(
+      track: "internal",
+      aab: ENV.fetch("AAB_PATH"),
+      release_status: "draft",
+      skip_upload_apk: true,
+      skip_upload_metadata: false,
+      skip_upload_changelogs: false,
+      skip_upload_images: false,
+      skip_upload_screenshots: false,
+    )
+  end
+
+  desc "Promote an existing internal-track build to production"
+  lane :promote_production do
+    upload_to_play_store(
+      track: "internal",
+      track_promote_to: "production",
+      version_code: ENV.fetch("VERSION_CODE").to_i,
+      skip_upload_aab: true,
+      skip_upload_apk: true,
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+    )
+  end
+
+  desc "Sync metadata/screenshots without uploading a binary"
+  lane :metadata_only do
+    upload_to_play_store(
+      skip_upload_aab: true,
+      skip_upload_apk: true,
+      skip_upload_metadata: false,
+      skip_upload_changelogs: false,
+      skip_upload_images: false,
+      skip_upload_screenshots: false,
+    )
+  end
+end

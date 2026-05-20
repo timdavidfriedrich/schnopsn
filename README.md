@@ -31,3 +31,62 @@ The project structure suggests a focus on Android (Schnopsn.csproj references An
 *   **Engine:** Godot 4 (.NET / C#).
 *   **State Management:** A dedicated `GameState` class decouples logic from the UI to facilitate the AI's Minimax simulations (cloning game states to predict future moves).
 *   **Component-Based Design:** The game scene is composed of modular components like `Hand`, [`TrickPile`](components/trick_pile/TrickPile.cs), and [`DrawPile`](components/draw_pile/DrawPile.cs), making the code extensible and maintainable.
+
+## Release process
+
+Releases are fully automated through GitHub Actions. The pipeline is split into two workflows.
+
+### Continuous deployment to internal testing
+
+Every push to `main` runs [.github/workflows/godot-ci.yml](.github/workflows/godot-ci.yml). The version is derived from commit messages since the last `v*` tag:
+
+| Commit prefix | Bump   |
+|---------------|--------|
+| `[BREAKING]`  | major  |
+| `[ADD]`       | minor  |
+| `[FIX]`       | patch  |
+| anything else | no release — workflow exits early |
+
+The workflow then:
+
+1. Creates and pushes a `vX.Y.Z` tag.
+2. Builds a signed Android App Bundle (AAB) with the new `versionName` / `versionCode` injected into the Godot export preset.
+3. Uploads the AAB plus localized metadata and changelog to the **Play Store internal testing** track via Fastlane.
+4. Publishes a GitHub Release with the AAB attached.
+
+`versionCode` is the total commit count on `main` — monotonic, no manual bookkeeping.
+
+### Promotion to production
+
+After QA on the internal track, trigger the [Promote to production](.github/workflows/promote-production.yml) workflow manually from the Actions tab and supply the `versionCode` to promote. Google Play promotes the existing internal artifact — there is no rebuild.
+
+### Fastlane metadata
+
+The Play Store listing lives under [fastlane/metadata/android/](fastlane/metadata/android/) in English (`en-US`) and German (`de-DE`):
+
+- `title.txt`, `short_description.txt`, `full_description.txt` — listing text
+- `changelogs/default.txt` — overwritten per release by the CI workflow with notes derived from commit prefixes
+- `images/icon.png`, `images/featureGraphic.png`, `images/phoneScreenshots/*.png` — store assets (**not yet committed** — add when ready)
+
+To sync metadata without releasing a new binary: `bundle exec fastlane metadata_only`.
+
+### Required GitHub secrets
+
+| Secret                       | Purpose                                                            |
+|------------------------------|--------------------------------------------------------------------|
+| `ANDROID_KEYSTORE_BASE64`    | Base64-encoded release keystore                                    |
+| `ANDROID_KEYSTORE_PASSWORD`  | Keystore password                                                  |
+| `ANDROID_KEY_ALIAS`          | Signing key alias                                                  |
+| `ANDROID_KEY_PASSWORD`       | Signing key password                                               |
+| `GOOGLE_PLAY_JSON_KEY`       | Google Cloud service account JSON with **Release Manager** rights in Google Play Console (Setup → API access). Paste the full JSON. |
+
+### Local dry runs
+
+```bash
+# See what the next release would be without pushing anything
+bash scripts/bump-version.sh
+
+# Validate Fastlane metadata structure without uploading
+bundle install
+bundle exec fastlane metadata_only
+```

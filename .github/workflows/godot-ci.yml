@@ -1,8 +1,8 @@
 name: "build & release"
 on:
     push:
-        tags:
-            - "v*"
+        branches:
+            - main
     workflow_dispatch:
 
 env:
@@ -10,9 +10,44 @@ env:
   EXPORT_NAME: Schnopsn
   PROJECT_PATH: .
 
+permissions:
+  contents: write
+
 jobs:
+    version:
+        name: Compute Version
+        runs-on: ubuntu-24.04
+        outputs:
+            version_name: ${{ steps.bump.outputs.version_name }}
+            version_code: ${{ steps.bump.outputs.version_code }}
+            tag: ${{ steps.bump.outputs.tag }}
+            has_release: ${{ steps.bump.outputs.has_release }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                fetch-depth: 0
+            - name: Bump version
+              id: bump
+              run: bash scripts/bump-version.sh
+            - name: Upload release notes
+              if: steps.bump.outputs.has_release == 'true'
+              uses: actions/upload-artifact@v4
+              with:
+                name: release-notes
+                path: release-notes.md
+            - name: Create and push tag
+              if: steps.bump.outputs.has_release == 'true'
+              run: |
+                git config user.name "github-actions[bot]"
+                git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+                git tag ${{ steps.bump.outputs.tag }}
+                git push origin ${{ steps.bump.outputs.tag }}
+
     build:
         name: Debug Android Build
+        needs: version
+        if: needs.version.outputs.has_release == 'true'
         runs-on: ubuntu-24.04
         container:
             image: barichello/godot-ci:mono-4.6
@@ -42,14 +77,11 @@ jobs:
               with:
                 name: ${{ env.EXPORT_NAME }}-android
                 path: builds/android/
-            - name: Create Release
-              if: startsWith(github.ref, 'refs/tags/')
-              uses: softprops/action-gh-release@v2
-              with:
-                files: builds/android/${{ env.EXPORT_NAME }}.apk
 
     release-android:
         name: Release Android Build
+        needs: version
+        if: needs.version.outputs.has_release == 'true'
         runs-on: ubuntu-24.04
         container:
             image: barichello/godot-ci:mono-4.6
@@ -71,15 +103,19 @@ jobs:
               run: |
                 echo "Keystore secret length: ${#KEYSTORE_BASE64}"
                 echo "$KEYSTORE_BASE64" | tr -d '[:space:]' | openssl enc -base64 -d -A > /root/release.keystore
-            - name: Android Release APK
+            - name: Android Release AAB
               env:
                 KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
                 KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
                 KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+                VERSION_NAME: ${{ needs.version.outputs.version_name }}
+                VERSION_CODE: ${{ needs.version.outputs.version_code }}
               run: |
                 cp export_presets.release.cfg export_presets.cfg
                 sed -i "s|keystore/release_password=\".*\"|keystore/release_password=\"$KEYSTORE_PASSWORD\"|g" export_presets.cfg
                 sed -i "s|keystore/release_user=\".*\"|keystore/release_user=\"$KEY_ALIAS\"|g" export_presets.cfg
+                sed -i "s|version/code=.*|version/code=$VERSION_CODE|g" export_presets.cfg
+                sed -i "s|version/name=\".*\"|version/name=\"$VERSION_NAME\"|g" export_presets.cfg
                 mkdir -p android/build
                 ANDROID_ZIP=$(find ~/.local/share/godot/export_templates -name "android_source.zip" | head -1)
                 unzip -o "$ANDROID_ZIP" -d android/build/
@@ -91,8 +127,51 @@ jobs:
               with:
                 name: ${{ env.EXPORT_NAME }}-android-release
                 path: builds/android/
-            - name: Create Release
-              if: startsWith(github.ref, 'refs/tags/')
+
+    deploy-internal:
+        name: Deploy to Play Store (internal)
+        needs: [version, release-android]
+        if: needs.version.outputs.has_release == 'true'
+        runs-on: ubuntu-24.04
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Download AAB
+              uses: actions/download-artifact@v4
+              with:
+                name: ${{ env.EXPORT_NAME }}-android-release
+                path: builds/android/
+            - name: Download release notes
+              uses: actions/download-artifact@v4
+              with:
+                name: release-notes
+                path: .
+            - name: Inject changelog into Fastlane metadata
+              run: |
+                mkdir -p fastlane/metadata/android/en-US/changelogs
+                mkdir -p fastlane/metadata/android/de-DE/changelogs
+                cp release-notes.md fastlane/metadata/android/en-US/changelogs/default.txt
+                cp release-notes.md fastlane/metadata/android/de-DE/changelogs/default.txt
+                cp release-notes.md fastlane/metadata/android/en-US/changelogs/${{ needs.version.outputs.version_code }}.txt
+                cp release-notes.md fastlane/metadata/android/de-DE/changelogs/${{ needs.version.outputs.version_code }}.txt
+            - name: Setup Ruby
+              uses: ruby/setup-ruby@v1
+              with:
+                ruby-version: '3.2'
+                bundler-cache: true
+            - name: Write Play Store service account key
+              env:
+                GOOGLE_PLAY_JSON_KEY: ${{ secrets.GOOGLE_PLAY_JSON_KEY }}
+              run: |
+                printf '%s' "$GOOGLE_PLAY_JSON_KEY" > fastlane/play-store-key.json
+            - name: Deploy to internal track
+              env:
+                AAB_PATH: builds/android/${{ env.EXPORT_NAME }}.aab
+              run: bundle exec fastlane internal
+            - name: Create GitHub Release
               uses: softprops/action-gh-release@v2
               with:
+                tag_name: ${{ needs.version.outputs.tag }}
+                name: ${{ needs.version.outputs.tag }}
+                body_path: release-notes.md
                 files: builds/android/${{ env.EXPORT_NAME }}.aab

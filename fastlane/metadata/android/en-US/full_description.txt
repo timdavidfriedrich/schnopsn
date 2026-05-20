@@ -1,0 +1,10 @@
+Schnopsn is a digital adaptation of the traditional Austrian trick-taking card game Schnapsen (related to Sixty-Six). Race your opponent to 66 points using the German-suited deck — Herz, Schellen, Eichel and Pik — and win the Bummerl.
+
+Features
+- Authentic Schnapsen rules: announcements (20er and 40er), Bummerl scoring, closing the Talon (Zudrehen)
+- Three difficulty levels — from a beginner-friendly random opponent to a deep Alpha-Beta Minimax AI
+- Retro pixel art aesthetic with juicy card animations and sound design
+- Designed for touch — built for mobile from the ground up
+- Single player, offline, no ads
+
+Whether you grew up playing Schnapsen at the Stammtisch or are picking it up for the first time, Schnopsn gives you a quick game whenever you want one.

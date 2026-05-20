@@ -11,3 +11,11 @@ release.keystore
 **/*.log
 **/*.DS_Store
 **/desktop.ini
+
+# Fastlane
+fastlane/play-store-key.json
+fastlane/report.xml
+fastlane/README.md
+release-notes.md
+vendor/bundle
+.bundle/
