@@ -5,6 +5,7 @@
 .vscode/
 *.editorconfig
 export_presets.cfg
+release.keystore
 **/*.tmp
 **/*.temp
 **/*.log
