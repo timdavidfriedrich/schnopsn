@@ -68,7 +68,7 @@ jobs:
             - name: Decode Keystore
               env:
                 KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-              run: echo "$KEYSTORE_BASE64" | tr -d '[:space:]' | base64 -d > /root/release.keystore
+              run: echo "$KEYSTORE_BASE64" | tr -d '[:space:]' | base64 --ignore-garbage -d > /root/release.keystore
             - name: Android Release APK
               env:
                 KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
