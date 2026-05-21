@@ -21,7 +21,7 @@ jobs:
             version_name: ${{ steps.bump.outputs.version_name }}
             version_code: ${{ steps.bump.outputs.version_code }}
             tag: ${{ steps.bump.outputs.tag }}
-            has_release: ${{ steps.bump.outputs.has_release }}
+            should_upload: ${{ steps.bump.outputs.should_upload }}
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -31,13 +31,12 @@ jobs:
               id: bump
               run: bash scripts/bump-version.sh
             - name: Upload release notes
-              if: steps.bump.outputs.has_release == 'true'
               uses: actions/upload-artifact@v4
               with:
                 name: release-notes
                 path: release-notes.md
             - name: Create and push tag
-              if: steps.bump.outputs.has_release == 'true'
+              if: steps.bump.outputs.should_upload == 'true'
               run: |
                 git config user.name "github-actions[bot]"
                 git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -47,7 +46,6 @@ jobs:
     build:
         name: Debug Android Build
         needs: version
-        if: needs.version.outputs.has_release == 'true'
         runs-on: ubuntu-24.04
         container:
             image: barichello/godot-ci:mono-4.6
@@ -81,7 +79,6 @@ jobs:
     release-android:
         name: Release Android Build
         needs: version
-        if: needs.version.outputs.has_release == 'true'
         runs-on: ubuntu-24.04
         container:
             image: barichello/godot-ci:mono-4.6
@@ -131,7 +128,7 @@ jobs:
     deploy-internal:
         name: Deploy to Play Store (internal)
         needs: [version, release-android]
-        if: needs.version.outputs.has_release == 'true'
+        if: needs.version.outputs.should_upload == 'true'
         runs-on: ubuntu-24.04
         steps:
             - name: Checkout

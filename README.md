@@ -36,25 +36,25 @@ The project structure suggests a focus on Android (Schnopsn.csproj references An
 
 Releases are fully automated through GitHub Actions. The pipeline is split into two workflows.
 
-### Continuous deployment to internal testing
+### Build on every push, upload on tag
 
-Every push to `main` runs [.github/workflows/godot-ci.yml](.github/workflows/godot-ci.yml). The version is derived from commit messages since the last `v*` tag:
+Every push to `main` runs [.github/workflows/godot-ci.yml](.github/workflows/godot-ci.yml). It **always** builds the debug APK and the signed release AAB and uploads both as GitHub Actions artifacts — useful for sideload testing without touching the Play Store.
 
-| Commit prefix | Bump   |
-|---------------|--------|
-| `[BREAKING]`  | major  |
-| `[ADD]`       | minor  |
-| `[FIX]`       | patch  |
-| anything else | no release — workflow exits early |
+Whether the AAB gets shipped to the Play Store depends on the commit messages since the last `v*` tag:
 
-The workflow then:
+| Commit prefix | Bump   | Play Store upload |
+|---------------|--------|-------------------|
+| `[RELEASE]`   | minor  | yes               |
+| `[HOTFIX]`    | patch  | yes               |
+| anything else | none   | no — artifacts only |
+
+When `[RELEASE]` or `[HOTFIX]` appears in any commit since the last tag, the workflow additionally:
 
 1. Creates and pushes a `vX.Y.Z` tag.
-2. Builds a signed Android App Bundle (AAB) with the new `versionName` / `versionCode` injected into the Godot export preset.
-3. Uploads the AAB plus localized metadata and changelog to the **Play Store internal testing** track via Fastlane.
-4. Publishes a GitHub Release with the AAB attached.
+2. Uploads the AAB plus localized metadata and changelog to the **Play Store internal testing** track via Fastlane.
+3. Publishes a GitHub Release with the AAB attached.
 
-`versionCode` is the total commit count on `main` — monotonic, no manual bookkeeping.
+`versionCode` is the total commit count on `main` — monotonic on every build, so each artifact is uniquely identifiable even when no release was triggered.
 
 ### Promotion to production
 
