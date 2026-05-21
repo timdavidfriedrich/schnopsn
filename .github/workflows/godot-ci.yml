@@ -179,9 +179,37 @@ jobs:
         runs-on: ubuntu-24.04
         if: always()
         steps:
+            - name: Build embed
+              run: |
+                if [[ "${{ needs.version.result }}" == "success" && \
+                      "${{ needs.build.result }}" == "success" && \
+                      "${{ needs.release-android.result }}" == "success" && \
+                      ("${{ needs.deploy-internal.result }}" == "success" || \
+                       "${{ needs.deploy-internal.result }}" == "skipped") ]]; then
+                  LABEL="SUCCESS" COLOR=3066993 EMOJI="✅"
+                else
+                  LABEL="FAILURE" COLOR=15158332 EMOJI="❌"
+                fi
+                TAG="${{ needs.version.outputs.tag }}"
+                TAG="${TAG:-unknown}"
+                RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                EMBEDS=$(jq -cn \
+                  --arg title "${EMOJI} Build & Release ${TAG}" \
+                  --arg url  "${RUN_URL}" \
+                  --argjson color ${COLOR} \
+                  --arg status "${LABEL}" \
+                  --arg branch "${{ github.ref_name }}" \
+                  '[{
+                    title: $title, url: $url, color: $color,
+                    fields: [
+                      {name: "Status", value: $status, inline: true},
+                      {name: "Branch", value: $branch, inline: true}
+                    ]
+                  }]')
+                echo "DISCORD_EMBEDS=${EMBEDS}" >> $GITHUB_ENV
             - name: Discord Notification
               uses: Ilshidur/action-discord@0.4.0
               env:
                 DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
               with:
-                args: "Build & Release `${{ needs.version.outputs.tag || 'unknown' }}` — ${{ (needs.version.result == 'success' && needs.build.result == 'success' && needs.release-android.result == 'success' && (needs.deploy-internal.result == 'success' || needs.deploy-internal.result == 'skipped')) && 'SUCCESS ✅' || 'FAILURE ❌' }}"
+                args: ""
