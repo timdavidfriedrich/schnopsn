@@ -172,3 +172,16 @@ jobs:
                 name: ${{ needs.version.outputs.tag }}
                 body_path: release-notes.md
                 files: builds/android/${{ env.EXPORT_NAME }}.aab
+
+    notify-discord:
+        name: Notify Discord
+        needs: [version, build, release-android, deploy-internal]
+        runs-on: ubuntu-24.04
+        if: always()
+        steps:
+            - name: Discord Notification
+              uses: Ilshidur/action-discord@0.4.0
+              env:
+                DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+              with:
+                args: "Build & Release `${{ needs.version.outputs.tag || 'unknown' }}` — ${{ (needs.version.result == 'success' && needs.build.result == 'success' && needs.release-android.result == 'success' && (needs.deploy-internal.result == 'success' || needs.deploy-internal.result == 'skipped')) && 'SUCCESS ✅' || 'FAILURE ❌' }}"
