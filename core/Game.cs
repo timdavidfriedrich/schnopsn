@@ -182,16 +182,12 @@ public partial class Game : Panel
 
 		trumpColor = trumpCard.Color;
 
-		// Trumpfkarte aufdecken
 		trumpCard.FaceUp();
 
-		// Leicht aus dem Stapel rausschieben – hier kannst du
-		// mit den Werten spielen, bis es genau so aussieht wie in deinem Wunsch-Screenshot
 		var talonPos = _drawPile.GlobalPosition;
-		var offset = new Vector2(10, 20); // z.B. 10px rechts, 20px runter
+		var offset = new Vector2(10, 20);
 		trumpCard.GlobalPosition = talonPos + offset;
 
-		// Über dem Stapel zeichnen lassen
 		trumpCard.ZAsRelative = false;
 		trumpCard.ZIndex = _drawPile.ZIndex + 1;
 
@@ -264,16 +260,14 @@ public partial class Game : Panel
 			return;
 		}
 
-		// --- Trumpf-Unter-Tausch (wie bisher) ---
 		if (!_isTalonClosed
-			&& _isFirstCardofTrick        // <-- NEU: nur als erste Karte im Stich
+			&& _isFirstCardofTrick
 			&& card.Color == trumpColor
 			&& card.Value == CardValue.unter
 			&& trumpCard.Value != CardValue.unter
 			&& _drawPile.CardCount > 2
 			&& _drawPile.ContainsCard(trumpCard))
 		{
-			// (Untertausch-Logik unverändert)
 			var oldTrumpColor = trumpCard.Color;
 			var oldTrumpValue = trumpCard.Value;
 
@@ -305,7 +299,6 @@ public partial class Game : Panel
 			return;
 		}
 
-		// --- NEU: Legalitätscheck vor dem Entfernen aus der Hand ---
 		if (!IsPlayLegal(hand, card))
 		{
 			GD.Print("Illegal move prevented (Farb-/Stich-/Trumpfzwang).");
@@ -313,11 +306,9 @@ public partial class Game : Panel
 			return;
 		}
 
-		// Karte aus der Hand nehmen erst NACH Bestehen des Checks
 		hand.RemoveCard(card);
-		hand.OnTouchOutside(); // Auswahl sicher weg
+		hand.OnTouchOutside();
 
-		// Ansage-Logik wie bisher
 		if (_isFirstCardofTrick && hand.CheckAnsage(card))
 		{
 			int extrapoints = (card.Color == trumpColor) ? 40 : 20;
@@ -346,7 +337,6 @@ public partial class Game : Panel
 
 		_playArea.ReceiveCard(card);
 
-		// Spieler eröffnet Stich -> Gegner spielt eine Karte
 		if (isFirstCardofTrick && hand == _playerHand)
 		{
 			PlayEnemyTurn();
@@ -396,7 +386,6 @@ public partial class Game : Panel
 
 		UpdateScoreUi();
 
-		// Gesamtpunkte inkl. Ansagen, mit 0-Stich-Regel
 		int totalPlayerPoints = _playerScore + _playerExtraPoints;
 		int totalEnemyPoints  = _enemyScore + _enemyExtraPoints;
 
@@ -409,7 +398,7 @@ public partial class Game : Panel
 		bool playerReached66 = totalPlayerPoints >= 66;
 		bool enemyReached66  = totalEnemyPoints >= 66;
 
-		// Sind alle Karten weg? (keine Handkarten + kein Talon mehr)
+		// Sind alle Karten weg?
 		bool allCardsPlayed =
 			!_playerHand.HasCards &&
 			!_enemyHand.HasCards &&
@@ -646,7 +635,6 @@ public partial class Game : Panel
 		_isTalonClosed = true;
 		_talonClosedByPlayer = closedByPlayer;
 
-		// *** HIER Punktezustand einfrieren ***
 		_playerPointsAtClose = GetTotalPoints(true);
 		_enemyPointsAtClose  = GetTotalPoints(false);
 
