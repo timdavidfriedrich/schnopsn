@@ -3,6 +3,8 @@ on:
     push:
         branches:
             - main
+        paths-ignore:
+            - 'CI_paper/**'
     workflow_dispatch:
 
 env:

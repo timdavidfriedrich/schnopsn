@@ -26,3 +26,40 @@ jobs:
               with:
                   name: CICD_Paper
                   path: CI_paper/CICD_Paper.pdf
+
+    notify-discord:
+        name: Notify Discord
+        needs: build
+        runs-on: ubuntu-latest
+        if: always()
+        steps:
+            - name: Build embed
+              run: |
+                RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                if [[ "${{ needs.build.result }}" == "success" ]]; then
+                  LABEL="SUCCESS" COLOR=3066993 EMOJI="✅"
+                  DESCRIPTION="[Download CICD_Paper.pdf](${RUN_URL})"
+                else
+                  LABEL="FAILURE" COLOR=15158332 EMOJI="❌"
+                  DESCRIPTION="[View logs](${RUN_URL})"
+                fi
+                EMBEDS=$(jq -cn \
+                  --arg title "${EMOJI} Paper Build ${LABEL}" \
+                  --arg url  "${RUN_URL}" \
+                  --argjson color ${COLOR} \
+                  --arg status "${LABEL}" \
+                  --arg branch "${{ github.ref_name }}" \
+                  --arg description "${DESCRIPTION}" \
+                  '[{
+                    title: $title, url: $url, color: $color,
+                    description: $description,
+                    fields: [
+                      {name: "Status", value: $status, inline: true},
+                      {name: "Branch", value: $branch, inline: true}
+                    ]
+                  }]')
+                echo "DISCORD_EMBEDS=${EMBEDS}" >> $GITHUB_ENV
+            - name: Discord Notification
+              uses: Ilshidur/action-discord@0.4.0
+              env:
+                DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
