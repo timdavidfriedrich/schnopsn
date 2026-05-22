@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pdflatex IEEE-conference-template-062824.tex)",
+      "Bash(pdflatex *)"
+    ]
+  }
+}

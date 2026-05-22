@@ -1,0 +1,28 @@
+name: "build paper"
+on:
+    push:
+        branches:
+            - main
+        paths:
+            - 'CI_paper/**'
+    workflow_dispatch:
+
+jobs:
+    build:
+        name: Build PDF
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Compile LaTeX
+              uses: xu-cheng/latex-action@v3
+              with:
+                  root_file: CICD_Paper.tex
+                  working_directory: CI_paper
+
+            - name: Upload PDF artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: CICD_Paper
+                  path: CI_paper/CICD_Paper.pdf
