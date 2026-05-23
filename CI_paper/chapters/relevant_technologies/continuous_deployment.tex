@@ -1,3 +1,8 @@
-\subsection{Continous Deployment}
-tim
-hey it make sense to use version tags for deployments
+\subsection{Continuous Deployment}
+Continuous Deployment (CD) extends Continuous Integration by automatically releasing every change that passes the test pipeline into production, without any manual gate \cite{b5}. The same pipeline that builds and tests a commit also packages and ships the resulting artifact to its target environment. This shortens the time between writing a feature and making it available to users, and removes the human errors that tend to accompany manual deployment steps.
+
+Continuous Deployment is sometimes confused with the closely related concept of Continuous Delivery. Both automate large parts of the release pipeline, but Continuous Delivery stops short of pushing changes to production, the final release remains a deliberate decision made by a human \cite{b5}. Continuous Deployment, by contrast, treats every green pipeline run as a release candidate that is shipped immediately.
+
+A common way to trigger a deployment is to associate it with a version tag in the version control system. A git tag identifies a specific commit as a named release, and a CD pipeline can listen for the creation of such tags to decide what to build, where to publish the resulting artifact, and what version label to attach to it. Tags therefore provide a lightweight but explicit handle for separating ordinary development commits from those that are intended to reach end users.
+
+The most widely adopted convention for naming such tags is Semantic Versioning, which uses the format \texttt{major.minor.patch}: the major number is incremented for breaking changes, the minor number for backward-compatible feature additions, and the patch number for backward-compatible bug fixes \cite{b6}. The choice of which segment to bump therefore communicates the nature of a release to its consumers, but it also gives the CD pipeline itself something to react to. A workflow can, for example, only push to a production channel when a release tag is present, or differentiate between an internal test build and a public release based on the type of bump.

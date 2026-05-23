@@ -1,2 +1,6 @@
-\subsection{Continous Integration}
-tim
+\subsection{Continuous Integration}
+Continuous Integration (CI) is a software development practice in which developers merge their code changes into a shared repository frequently, often several times per day \cite{b5}. Each integration is verified by an automated process that builds the project and runs an automated test suite. Because problems are surfaced within minutes of the offending commit rather than weeks later at the end of a development phase, the cost and effort of fixing them stays low.
+
+The practice rests on three core principles: frequent commits, automated builds and automated testing \cite{b5}. Frequent commits keep individual changes small and reduce the likelihood of merge conflicts. Automated builds confirm that the project still compiles cleanly with the latest changes, catching a class of errors that would otherwise only surface on another developer's machine. Automated tests, typically a mix of unit, integration and functional tests, guard against regressions whenever new code is introduced.
+
+By providing rapid feedback on every change, CI shortens the loop between writing and validating code. Defects are caught while the relevant context is still fresh in the author's mind, which makes them substantially easier to fix than bugs discovered weeks later in a manual QA phase. CI also forms the foundation that further automation, most notably Continuous Deployment, depends on, since a release pipeline can only safely act on commits that have already been built and tested.
