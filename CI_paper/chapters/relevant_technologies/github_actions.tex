@@ -1,3 +1,8 @@
-\subsection{Github Actions}
-alex
-+ integrations into other services
+\subsection{GitHub Actions}
+GitHub Actions are an automation tool from GitHub \cite{b3} allowing users to create automated workflows that run on virtual machines (VMs or runners). Workflows contain jobs and jobs contain steps. A workflow can contain multiple jobs that either run in parallel or are chained sequentially. Workflows can be run automatically depending on a wide array of git-related triggers, like committing to a certain branch, creating a pull request or simply by a manual trigger.
+
+The workflows are specified as YAML files within the repository itself and have access to various git features such as the commit history and commit hash. Workflows allow for setting the operating system of the runner as well as self-hosting runners on a personal device.
+
+Since runners usually provision a "fresh" operating system, tools which are needed for automations like specific software development kits (SDKs) or other build tools need to be set up in the workflows themselves. Since applications usually need sensitive credentials to access external systems like databases GitHub offers the option to add these secrets to the repository which can then safely be used inside of workflows as encrypted variables. Jobs have access to output from previous jobs meaning one job could build a project while the next would deploy that build output to a platform. Output from jobs like an Android Package (APK) file can also be uploaded to a workflow run as an artifact. These artifacts can then be easily downloaded.
+
+Another significant feature of GitHub Actions is that workflows can be shared as reusable actions on the GitHub Marketplace, which vastly improves the developer experience. Additionally, since runners are essentially just virtual machines, they can easily integrate into external services, like messaging services.
