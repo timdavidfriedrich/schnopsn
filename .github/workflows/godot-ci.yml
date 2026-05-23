@@ -16,8 +16,22 @@ permissions:
   contents: write
 
 jobs:
+    test:
+        name: Unit Tests
+        runs-on: ubuntu-24.04
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Setup .NET
+              uses: actions/setup-dotnet@v4
+              with:
+                dotnet-version: '10.x'
+            - name: Run unit tests
+              run: dotnet test Schnopsn.Tests/
+
     version:
         name: Compute Version
+        needs: test
         runs-on: ubuntu-24.04
         outputs:
             version_name: ${{ steps.bump.outputs.version_name }}
@@ -207,13 +221,14 @@ jobs:
 
     notify-discord:
         name: Notify Discord
-        needs: [version, build, release-android, deploy-internal]
+        needs: [test, version, build, release-android, deploy-internal]
         runs-on: ubuntu-24.04
         if: always()
         steps:
             - name: Build embed
               run: |
-                if [[ "${{ needs.version.result }}" == "success" && \
+                if [[ "${{ needs.test.result }}" == "success" && \
+                      "${{ needs.version.result }}" == "success" && \
                       "${{ needs.build.result }}" == "success" && \
                       "${{ needs.release-android.result }}" == "success" && \
                       ("${{ needs.deploy-internal.result }}" == "success" || \

@@ -1,7 +1,4 @@
-using System.Drawing;
-using Schnopsn;
 using Schnopsn.components.card;
-using Schnopsn.components.hand;
 
 namespace Schnopsn.core.Utilities
 {
@@ -29,21 +26,14 @@ namespace Schnopsn.core.Utilities
             _ => 0
         };
 
-        public static Card determineWinner(Card firstCard, Card secondCard, CardColor trumpColor)
+        public static CardData DetermineWinner(CardData first, CardData second, CardColor trump)
         {
-            if (secondCard.Color == firstCard.Color)
-            {
-                return Rank(secondCard.Value) > Rank(firstCard.Value) ? secondCard : firstCard;
-            }
-            else if (secondCard.Color == trumpColor && firstCard.Color != trumpColor)
-            {
-                return secondCard;
-            }
+            if (second.Color == first.Color)
+                return Rank(second.Value) > Rank(first.Value) ? second : first;
+            else if (second.Color == trump && first.Color != trump)
+                return second;
             else
-            {
-                return firstCard;
-            }
+                return first;
         }
-        
     }
 }

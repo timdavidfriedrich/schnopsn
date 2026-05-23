@@ -20,6 +20,10 @@ release-notes.md
 vendor/bundle
 .bundle/
 
+# .NET build artifacts
+**/bin/
+**/obj/
+
 # LaTeX build artifacts
 *.aux
 *.fdb_latexmk

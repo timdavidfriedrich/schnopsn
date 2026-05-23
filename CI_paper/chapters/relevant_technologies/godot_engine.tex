@@ -1,2 +1,8 @@
 \subsection{Godot Engine}
-alex
+The Godot Engine, or Godot for short, is an open source game development engine. Based on C++ it allows for developing games in its proprietary programming language GDScript, C\# or a mix of both. Built on C++ it allows for the creation of 2D and 3D video games and additionally provides different renderers (Forward+, mobile and compatibility) depending on the target platform.
+
+The engine can build executables for all common operating systems and has great compatibility for mobile based touch controls as well as click controls. This paper will focus on building for Android devices, since the pre-existing game is a mobile card game. While Godot can build for IOS as well, this is only possible on macOS devices via Xcode. No such restrictions exist for other operating systems.
+
+\subsubsection{Testing in Godot}
+
+It is possible to write Unit Tests in Godot directly via C++. For C\# based projects it is possible to use testing frameworks like xUnit to write tests purely for the C\# code as long as it is sufficiently decoupled from the Godot related code.

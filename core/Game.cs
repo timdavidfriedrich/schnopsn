@@ -346,7 +346,11 @@ public partial class Game : Panel
 	private async void OnBothCardsPlayed(Card[] cards)
 	{
 
-		var winner = Rules.determineWinner(cards[0], cards[1], trumpColor);
+		var winnerData = Rules.DetermineWinner(
+			new CardData(cards[0].Color, cards[0].Value),
+			new CardData(cards[1].Color, cards[1].Value),
+			trumpColor);
+		var winner = winnerData == new CardData(cards[0].Color, cards[0].Value) ? cards[0] : cards[1];
 
 		var winnerPile = winner.isPlayerCard ? _playerTrickPile : _enemyTrickPile;
 
@@ -965,12 +969,19 @@ public partial class Game : Panel
     // aktuellen Game-Zustand klonen + einen Zug des angegebenen Spielers anwenden
     private GameState CloneGameStateWithMove(Hand hand, Card card)
     {
-        var clone = GameState.FromCurrent(this);
-
+        var state = new GameState
+        {
+            PlayerHand = _playerHand.CardsInHand.Select(c => new CardData(c.Color, c.Value)).ToList(),
+            EnemyHand  = _enemyHand.CardsInHand.Select(c => new CardData(c.Color, c.Value)).ToList(),
+            PlayerPoints = _playerScore + _playerExtraPoints,
+            EnemyPoints  = _enemyScore  + _enemyExtraPoints,
+            TrumpColor   = trumpColor,
+            TalonClosed  = _isTalonClosed,
+            CurrentPlayer = PlayerRole.Enemy
+        };
         var role = (hand == _playerHand) ? PlayerRole.Player : PlayerRole.Enemy;
-        clone.ApplyMove(role, card);
-
-        return clone;
+        state.ApplyMove(role, new CardData(card.Color, card.Value));
+        return state;
     }
 
     // -------- Talon-Zudrehen je nach Difficulty --------
