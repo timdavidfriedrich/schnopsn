@@ -1,1 +1,0 @@
-Schnopsn is the digital adaptation of the traditional Austrian card game Schnapsen. You play against the AI and try to reach 66 points before it does — using the German deck (Hearts, Bells, Acorns, Leaves). Whoever wins the game takes the Bummerl.

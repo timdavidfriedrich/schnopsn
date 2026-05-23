@@ -1,1 +1,0 @@
-Schnopsn ist die digitale Umsetzung des traditionellen österreichischen Kartenspiels Schnapsen. Du spielst gegen die KI und versuchst, vor ihr 66 Punkte zu erreichen — mit dem deutschen Blatt (Herz, Schellen, Eichel, Pik). Wer die Partie gewinnt, holt sich den Bummerl.
