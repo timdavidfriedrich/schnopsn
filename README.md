@@ -70,7 +70,7 @@ The Play Store listing lives under [fastlane/metadata/android/](fastlane/metadat
 - `changelogs/default.txt` — static fallback text shown when a release has no specific notes
 - `changelogs/next.txt` — handwritten notes for the **upcoming** release; edit this before a `[RELEASE]`/`[HOTFIX]` push
 - `changelogs/<versionCode>.txt` — per-version history; auto-generated on release (see below)
-- `images/icon.png`, `images/featureGraphic.png`, `images/phoneScreenshots/*.png` — store assets (**not yet committed** — add when ready)
+- `images/icon.png`, `images/featureGraphic.png`, `images/phoneScreenshots/*.png` — store assets
 
 **Changelog flow per release:**
 
