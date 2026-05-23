@@ -1,3 +1,33 @@
 \subsection{Deploying to Google Play Store}
-tim
-also includes version tags for deployment, releases and change logs
+
+Whether a push to \texttt{main} actually results in a Play Store upload is decided by a short shell script that runs in the "Compute Version" job. The script lists every commit message since the most recent \texttt{v*} git tag and looks for a prefix in those messages: if any commit contains \texttt{[RELEASE]} the minor version is bumped, if any contains \texttt{[PATCH]} or \texttt{[HOTFIX]} the patch version is bumped, and otherwise no upload happens at all and the workflow only produces artifacts for sideload testing. The \texttt{versionCode} that Google Play uses to order releases is set to the total commit count on \texttt{main}, which keeps it monotonically increasing for every build even when no semantic version bump is triggered. When a bump does occur, the same job creates the corresponding \texttt{vX.Y.Z} git tag and pushes it back to the repository, so each release is anchored both in git history and in the artefact that ends up on the store.
+
+If the version job decided that this commit triggers an upload, the \texttt{deploy-internal} job runs after the signed AAB has been produced by the build step. It downloads the AAB as an artefact, sets up Ruby, writes the Google Play service-account key out of a GitHub secret into a file Fastlane expects, and then runs the \texttt{internal} Fastlane lane. That lane is a thin wrapper around Fastlane's \texttt{upload\_to\_play\_store} action configured to push the bundle to the internal testing track in \texttt{draft} state, together with the localised store listing in English and German and any updated screenshots. The \texttt{draft} state means that even after the upload succeeds, the build is not yet visible to internal testers until the developer manually publishes it from the Play Console, which leaves a deliberate human check between the pipeline and the testers.
+
+Each Play Store release shows a short user-facing changelog, which would normally be a tedious manual step on every release. The pipeline handles this through a small convention with two text files per locale: \texttt{next.txt} holds the handwritten release notes for the upcoming release, and \texttt{default.txt} holds a generic fallback. Before pushing a \texttt{[RELEASE]} or \texttt{[PATCH]} commit the developer writes the release notes into \texttt{next.txt} for each locale. When the deploy job runs, it copies the contents of \texttt{next.txt} into a per-version archive \texttt{<versionCode>.txt}, clears \texttt{next.txt} so the next release starts from a blank slate, and lets Fastlane pick up the versioned file as the changelog for the upload. If \texttt{next.txt} happens to be empty, the static \texttt{default.txt} is archived under the same versioned name instead. The archived file and the cleared \texttt{next.txt} are then committed back to \texttt{main} by a \texttt{github-actions[bot]} user, so the in-repo history mirrors what the Play Store actually displays.
+
+After the Play Store upload succeeds, the same job creates a GitHub Release for the new version tag, attaches the AAB as a release asset, and uses an auto-generated commit log as the release body. This produces a second, version-control-anchored distribution channel for the same artefact, which is convenient for sideload testing and for keeping a permanent record outside Google's infrastructure. The Play Store build itself remains on the internal track. Promotion to the production track is a deliberately separate, manually triggered workflow: the developer supplies the \texttt{versionCode} of the internal build to promote, and Fastlane's \texttt{promote\_production} lane tells Google Play to move that existing artefact from the internal to the production track. No rebuild and no re-signing happens, which guarantees that the production build is identical to the build that was tested on the internal track. Both lanes are shown in Figure~\ref{fig:fastlane-lanes}.
+
+\begin{figure}[htbp]
+    {\small\begin{verbatim}
+lane :internal do
+  upload_to_play_store(
+    track: "internal",
+    aab: ENV.fetch("AAB_PATH"),
+    release_status: "draft",
+    skip_upload_apk: true,
+  )
+end
+
+lane :promote_production do
+  upload_to_play_store(
+    track: "internal",
+    track_promote_to: "production",
+    version_code: ENV.fetch("VERSION_CODE").to_i,
+    skip_upload_aab: true,
+  )
+end
+\end{verbatim}}
+    \caption{Fastlane lanes for the internal-track upload and the production promotion.}
+    \label{fig:fastlane-lanes}
+\end{figure}
