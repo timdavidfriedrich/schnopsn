@@ -1,4 +1,14 @@
-\subsection{Google Playstore and Fastlane}
-tim
-\subsubsection{Google Playstore}
-explaing abb and keystore stuff
+\subsection{Google Play Store and Fastlane}
+The Google Play Store is the primary distribution channel for Android applications, and publishing to it carries some platform-specific requirements that shape how a deployment pipeline is built. This subsection introduces the two release artifacts that Google Play expects, namely the Android App Bundle and the signing keystore, the staged release tracks the store provides, and Fastlane, the open-source toolchain most commonly used to automate the upload itself.
+
+\subsubsection{Google Play Store}
+Google Play accepts uploads in the Android App Bundle (AAB) format, which has largely replaced the standalone APK as the publishing artifact \cite{b9}. An AAB contains all of the application's compiled code and resources but defers the generation of installable APKs to Google Play itself. When a user installs the app, Google Play assembles an optimised APK for that specific device, including only the code, resources, language strings and screen densities the device actually needs. The result is a noticeably smaller download for the end user without any extra work from the developer \cite{b9}.
+
+Before an APK or AAB can be uploaded, it must be cryptographically signed with a private key stored in a keystore file \cite{b10}. The signature lets Android and Google Play verify that successive updates of an app genuinely come from the same author, so once an app has been published to a particular listing, every future release must be signed with the same key. Losing the keystore therefore effectively means losing the ability to update the app under that listing, which makes secure storage of the keystore a non-trivial concern in any deployment pipeline that performs signing automatically.
+
+Google Play also offers several release tracks, namely internal, closed (alpha), open (beta) and production, which a deployment pipeline can publish to independently \cite{b11}. This staged release model fits naturally with Continuous Deployment: a pipeline can publish every successful build to the internal track automatically, while a manual approval step still gates the promotion from internal to production \cite{b7}.
+
+\subsubsection{Fastlane}
+Fastlane is an open-source toolchain for automating the release process of mobile applications on both Android and iOS \cite{b7, b8}. It wraps the otherwise verbose Google Play Developer API and the equivalent App Store APIs in a small set of declarative actions, each of which corresponds to a discrete step in the release process such as building, signing, uploading the artifact, or updating the store listing's metadata.
+
+Fastlane configurations live in plain text files inside the repository, which means the deployment recipe is versioned together with the application itself. The toolchain is also well suited to multilingual app stores, where store listings, descriptions and screenshots for every supported language can be uploaded in a single invocation. This removes one of the more tedious manual steps in publishing an app to a global audience \cite{b7}.
