@@ -42,13 +42,15 @@ Every push to `main` runs [.github/workflows/godot-ci.yml](.github/workflows/god
 
 Whether the AAB gets shipped to the Play Store depends on the commit messages since the last `v*` tag:
 
-| Commit prefix | Bump   | Play Store upload |
-|---------------|--------|-------------------|
-| `[RELEASE]`   | minor  | yes               |
-| `[HOTFIX]`    | patch  | yes               |
-| anything else | none   | no — artifacts only |
+| Commit prefix          | Bump   | Play Store upload |
+|------------------------|--------|-------------------|
+| `[RELEASE]`            | minor  | yes               |
+| `[PATCH]` / `[HOTFIX]` | patch  | yes               |
+| anything else          | none   | no — artifacts only |
 
-When `[RELEASE]` or `[HOTFIX]` appears in any commit since the last tag, the workflow additionally:
+`[PATCH]` is the routine patch keyword; `[HOTFIX]` is a synonym kept for when you want to flag urgency in the commit history.
+
+When `[RELEASE]`, `[PATCH]`, or `[HOTFIX]` appears in any commit since the last tag, the workflow additionally:
 
 1. Creates and pushes a `vX.Y.Z` tag.
 2. Uploads the AAB plus localized metadata and changelog to the **Play Store internal testing** track via Fastlane.
@@ -65,8 +67,19 @@ After QA on the internal track, trigger the [Promote to production](.github/work
 The Play Store listing lives under [fastlane/metadata/android/](fastlane/metadata/android/) in English (`en-US`) and German (`de-DE`):
 
 - `title.txt`, `short_description.txt`, `full_description.txt` — listing text
-- `changelogs/default.txt` — overwritten per release by the CI workflow with notes derived from commit prefixes
+- `changelogs/default.txt` — static fallback text shown when a release has no specific notes
+- `changelogs/next.txt` — handwritten notes for the **upcoming** release; edit this before a `[RELEASE]`/`[HOTFIX]` push
+- `changelogs/<versionCode>.txt` — per-version history; auto-generated on release (see below)
 - `images/icon.png`, `images/featureGraphic.png`, `images/phoneScreenshots/*.png` — store assets (**not yet committed** — add when ready)
+
+**Changelog flow per release:**
+
+1. Before pushing your `[RELEASE]`/`[PATCH]`/`[HOTFIX]` commit, write the user-facing notes into `next.txt` for each locale.
+2. CI reads `next.txt`. If it's non-empty, that text is uploaded to the Play Store and copied to `<versionCode>.txt` for the in-repo history; `next.txt` is then cleared.
+3. If `next.txt` was empty, CI uploads `default.txt` instead and still archives a copy as `<versionCode>.txt`.
+4. CI commits the archived `<versionCode>.txt` and cleared `next.txt` back to `main` as `github-actions[bot]`. Run `git pull` before your next push.
+
+The auto-generated `release-notes.md` (a `git log` summary) is used only for the GitHub Release body, never for the Play Store.
 
 To sync metadata without releasing a new binary: `bundle exec fastlane metadata_only`.
 

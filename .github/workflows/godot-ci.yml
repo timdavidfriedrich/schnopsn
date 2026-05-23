@@ -145,14 +145,25 @@ jobs:
               with:
                 name: release-notes
                 path: .
-            - name: Inject changelog into Fastlane metadata
+            - name: Generate per-version changelog
+              env:
+                VERSION_CODE: ${{ needs.version.outputs.version_code }}
               run: |
-                mkdir -p fastlane/metadata/android/en-US/changelogs
-                mkdir -p fastlane/metadata/android/de-DE/changelogs
-                cp release-notes.md fastlane/metadata/android/en-US/changelogs/default.txt
-                cp release-notes.md fastlane/metadata/android/de-DE/changelogs/default.txt
-                cp release-notes.md fastlane/metadata/android/en-US/changelogs/${{ needs.version.outputs.version_code }}.txt
-                cp release-notes.md fastlane/metadata/android/de-DE/changelogs/${{ needs.version.outputs.version_code }}.txt
+                set -euo pipefail
+                for locale in en-US de-DE; do
+                  dir="fastlane/metadata/android/${locale}/changelogs"
+                  next="${dir}/next.txt"
+                  default="${dir}/default.txt"
+                  target="${dir}/${VERSION_CODE}.txt"
+                  if [[ -s "$next" ]]; then
+                    echo "[${locale}] next.txt has content -> using it for this release"
+                    cp "$next" "$target"
+                    : > "$next"
+                  else
+                    echo "[${locale}] next.txt is empty -> archiving default.txt for this release"
+                    cp "$default" "$target"
+                  fi
+                done
             - name: Setup Ruby
               uses: ruby/setup-ruby@v1
               with:
@@ -167,6 +178,25 @@ jobs:
               env:
                 AAB_PATH: builds/android/${{ env.EXPORT_NAME }}.aab
               run: bundle exec fastlane internal
+            - name: Archive changelog history
+              env:
+                VERSION_CODE: ${{ needs.version.outputs.version_code }}
+                TAG: ${{ needs.version.outputs.tag }}
+              run: |
+                set -euo pipefail
+                git config user.name "github-actions[bot]"
+                git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+                git add \
+                  "fastlane/metadata/android/en-US/changelogs/${VERSION_CODE}.txt" \
+                  "fastlane/metadata/android/de-DE/changelogs/${VERSION_CODE}.txt" \
+                  "fastlane/metadata/android/en-US/changelogs/next.txt" \
+                  "fastlane/metadata/android/de-DE/changelogs/next.txt"
+                if git diff --cached --quiet; then
+                  echo "No changelog changes to commit"
+                  exit 0
+                fi
+                git commit -m "archive changelog for ${TAG}"
+                git push origin HEAD:main
             - name: Create GitHub Release
               uses: softprops/action-gh-release@v2
               with:

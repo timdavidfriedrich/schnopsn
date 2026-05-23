@@ -2,9 +2,10 @@
 set -euo pipefail
 
 # Every push to main builds artifacts. A Play Store upload only happens when a
-# commit since the last v* tag is prefixed [RELEASE] (minor bump) or [HOTFIX]
-# (patch bump). versionCode is the total commit count on the branch so each
-# build still gets a unique, monotonically increasing code for sideload testing.
+# commit since the last v* tag is prefixed [RELEASE] (minor bump) or
+# [PATCH]/[HOTFIX] (patch bump). versionCode is the total commit count on the
+# branch so each build still gets a unique, monotonically increasing code for
+# sideload testing.
 #
 # Emits version_name, version_code, tag, should_upload, bump to $GITHUB_OUTPUT
 # (or stdout when run locally) and writes release-notes.md.
@@ -23,7 +24,7 @@ while IFS= read -r line; do
     if [[ "$line" == *"[RELEASE]"* ]]; then
         bump="minor"
         break
-    elif [[ "$line" == *"[HOTFIX]"* && "$bump" == "none" ]]; then
+    elif [[ ("$line" == *"[PATCH]"* || "$line" == *"[HOTFIX]"*) && "$bump" == "none" ]]; then
         bump="patch"
     fi
 done <<< "$commits"
