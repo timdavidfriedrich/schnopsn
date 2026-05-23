@@ -1,10 +1,77 @@
-\section{Continous Integration for a Godot Mobile Game}
-alex
-using discord for notifications
+\section{Case Study: Schnopsn}
+This section describes the process of setting up continuous integration and continuous deployment for a mobile game developed with Godot. The mobile game called "Schnopsn" is a simple game based on the traditional Austrian card game "Schnapsen". The development of this game is not part of the paper.
 
-\subsection{building for android in github actions}
+Using GitHub Actions a workflow was set up that runs unit tests, builds the game as an APK file as well as for the Google Play Store and then uses Fastlane to publish it to the Play Store. Additionally, success or failure of the workflow run is shared to a messaging service (Discord). The particularities of these specific steps are covered in the following subsections.
+
+\subsection{Unit Tests}
+
+Since the mobile game is based on a real card game, it is naturally necessary for the game to follow the same strict rules. For example, Schnapsen has multiple rules where players are forced to play the same suit as their opponent if they have a card of that suit in hand \cite{b4}.
+For this reason it makes sense to add and enforce unit tests so that the game logic follows the strict rules and does not break unintentionally. The game logic written in C\# is decoupled from the Godot code making it possible to set up unit tests as a separate xUnit Project that can be executed via the command line. If changes to the code would break the core rules it would not make sense to build and deploy the game. Therefore, unit testing is the first part of the workflow and other jobs will skip if it fails.
+
+    {\small\begin{verbatim}
+test:
+    name: Unit Tests
+    runs-on: ubuntu-24.04
+    steps:
+        - name: Checkout
+            uses: actions/checkout@v4
+        - name: Setup .NET
+            uses: actions/setup-dotnet@v4
+            with:
+            dotnet-version: '10.x'
+        - name: Run unit tests
+            run: dotnet test Schnopsn.Tests/
+
+version:
+    name: Compute Version
+    needs: test
+    ...
+
+build:
+    name: Debug Android Build
+    needs: version
+    ...
+\end{verbatim}}
+
+
+\subsection{Building for Android}
 alex
 
-\subsection{deploying to google playstore}
+\subsection{Deploying to Google Play Store}
 tim
 version tags for deployment, releases and change logs
+
+\subsection{Notifications}
+
+Usually developers are only notified via e-mail at the end of a workflow run if it fails. Depending on the size of the project and workflow as well as available resources, workflows might take a long time. Since developers or testers might want to download created artifacts like the debug android APK and do not want to watch the workflow run the entire time, it makes sense to notify them on success. In the case study this was implemented via a step that is always executed and reports the result of the workflow as well as a link to the run itself to a Discord channel. The messaging service Discord allows for creating custom web hooks on Discord Servers that create a Bot User with a custom name with permissions to post to a specific text channel. The action for using the Discord Web hook was taken from the GitHub Marketplace and the web hook itself was stored as a secret to the repository. Discord uses Markdown, so the information from the workflow run needs to be sufficiently prepared in order for a nice Discord message to be generated.
+The resulting Discord message can be seen in Figure~\ref{fig:discord-notification}.
+
+    {\footnotesize\begin{verbatim}
+notify-discord:
+    name: Notify Discord
+    needs: [test, version, build,
+            release-android, deploy-internal]
+    runs-on: ubuntu-24.04
+    if: always()
+    steps:
+        - name: Build embed
+          run: |
+            if <all jobs succeeded>; then
+              LABEL="SUCCESS"
+            else
+              LABEL="FAILURE"
+            fi
+            echo "DISCORD_EMBEDS=<JSON>" \
+              >> $GITHUB_ENV
+        - name: Discord Notification
+          uses: Ilshidur/action-discord@0.4.0
+          env:
+            DISCORD_WEBHOOK: ${{ secrets.WEBHOOK }}
+\end{verbatim}}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\columnwidth]{assets/DiscordNotification}
+    \caption{Discord notification posted by the workflow after successful run.}
+    \label{fig:discord-notification}
+\end{figure}
