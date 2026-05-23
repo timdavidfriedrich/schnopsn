@@ -240,17 +240,20 @@ jobs:
                 TAG="${{ needs.version.outputs.tag }}"
                 TAG="${TAG:-unknown}"
                 RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                COMMIT_MSG="${{ github.event.head_commit.message }}"
                 EMBEDS=$(jq -cn \
                   --arg title "${EMOJI} Build & Release ${TAG}" \
                   --arg url  "${RUN_URL}" \
                   --argjson color ${COLOR} \
                   --arg status "${LABEL}" \
                   --arg branch "${{ github.ref_name }}" \
+                  --arg commit "${COMMIT_MSG}" \
                   '[{
                     title: $title, url: $url, color: $color,
                     fields: [
                       {name: "Status", value: $status, inline: true},
-                      {name: "Branch", value: $branch, inline: true}
+                      {name: "Branch", value: $branch, inline: true},
+                      {name: "Commit", value: $commit, inline: false}
                     ]
                   }]')
                 echo "DISCORD_EMBEDS=${EMBEDS}" >> $GITHUB_ENV

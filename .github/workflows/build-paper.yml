@@ -43,6 +43,7 @@ jobs:
                   LABEL="FAILURE" COLOR=15158332 EMOJI="❌"
                   DESCRIPTION="[View logs](${RUN_URL})"
                 fi
+                COMMIT_MSG="${{ github.event.head_commit.message }}"
                 EMBEDS=$(jq -cn \
                   --arg title "${EMOJI} Paper Build ${LABEL}" \
                   --arg url  "${RUN_URL}" \
@@ -50,12 +51,14 @@ jobs:
                   --arg status "${LABEL}" \
                   --arg branch "${{ github.ref_name }}" \
                   --arg description "${DESCRIPTION}" \
+                  --arg commit "${COMMIT_MSG}" \
                   '[{
                     title: $title, url: $url, color: $color,
                     description: $description,
                     fields: [
                       {name: "Status", value: $status, inline: true},
-                      {name: "Branch", value: $branch, inline: true}
+                      {name: "Branch", value: $branch, inline: true},
+                      {name: "Commit", value: $commit, inline: false}
                     ]
                   }]')
                 echo "DISCORD_EMBEDS=${EMBEDS}" >> $GITHUB_ENV
