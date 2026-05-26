@@ -1,2 +1,6 @@
 \section{Conclusion}
-Gemeinsam
+The mobile gaming market demands frequent updates to remain competitive, yet manual release processes are repetitive and error-prone. This paper has shown that a complete CI/CD pipeline for a Godot~4 Android game can be realized using freely available tools: GitHub Actions, Fastlane, and the godot-ci Docker image.
+
+The pipeline covers each stage of the release lifecycle. An xUnit testing gate validates decoupled C\# game logic before any artifact is produced. A dual-preset strategy injects signing credentials at build time via GitHub Secrets, keeping sensitive files out of the repository. Commit message prefixes automate semantic versioning without manual intervention \cite{b6}. Staged deployment uploads automatically to the internal track, while promotion to production remains a deliberate human gate. A qualifying commit therefore triggers the full release process, with the developer responsible only for approving a verified build and submitting a changelog entry.
+
+Several concerns fall outside scope: iOS support, multi-branch workflows, keystore lifecycle management, and automated UI testing. Prior work by Schindler et al.\ \cite{b7} and Luhana et al.\ \cite{b8} has demonstrated comparable automation gains for large application projects; this paper shows the same principles apply at indie scale. The pipeline is not Schnopsn specific and serves as a reproducible blueprint for any small team targeting Google Play with Godot 4.
