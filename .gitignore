@@ -11,6 +11,7 @@ release.keystore
 **/*.log
 **/*.DS_Store
 **/desktop.ini
+export
 
 # Fastlane
 fastlane/play-store-key.json
