@@ -1,0 +1,71 @@
+name: "iOS unsigned build (experimental)"
+on:
+    push:
+        branches:
+            - main
+        paths-ignore:
+            - 'CI_paper/**'
+    workflow_dispatch:
+
+env:
+  GODOT_VERSION: 4.6
+  EXPORT_NAME: Schnopsn
+
+jobs:
+    build-ios:
+        name: Unsigned iOS Build (experimental)
+        runs-on: macos-15
+        timeout-minutes: 30
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                lfs: true
+            - name: Setup .NET
+              uses: actions/setup-dotnet@v4
+              with:
+                dotnet-version: '10.x'
+            - name: Install iOS workload
+              run: dotnet workload install ios
+            - name: Download Godot (mono)
+              run: |
+                curl -Lo godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_mono_macos.universal.zip"
+                unzip -q godot.zip -d godot
+            - name: Download and install iOS export template (mono)
+              run: |
+                curl -Lo templates.tpz "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_mono_export_templates.tpz"
+                TEMPLATE_DIR="$HOME/Library/Application Support/Godot/export_templates/${GODOT_VERSION}.stable.mono"
+                mkdir -p "$TEMPLATE_DIR"
+                unzip -q templates.tpz -d /tmp/templates_extract
+                cp /tmp/templates_extract/templates/ios.zip "$TEMPLATE_DIR/ios.zip"
+            - name: Export to Xcode project
+              run: |
+                cp export_presets.ios.cfg export_presets.cfg
+                mkdir -p builds/ios
+                GODOT_APP=$(find godot -maxdepth 1 -name "*.app")
+                "$GODOT_APP/Contents/MacOS/Godot" --headless --verbose --path . \
+                  --export-release "iOS" "$GITHUB_WORKSPACE/builds/ios/$EXPORT_NAME.xcodeproj"
+            - name: xcodebuild archive (unsigned)
+              run: |
+                xcodebuild archive \
+                  -project "builds/ios/$EXPORT_NAME.xcodeproj" \
+                  -scheme "$EXPORT_NAME" \
+                  -archivePath "builds/ios/App.xcarchive" \
+                  -configuration Release \
+                  CODE_SIGN_STYLE=Manual \
+                  CODE_SIGN_IDENTITY="" \
+                  PROVISIONING_PROFILE_SPECIFIER="" \
+                  CODE_SIGNING_REQUIRED=NO \
+                  CODE_SIGNING_ALLOWED=NO
+            - name: Package unsigned IPA
+              run: |
+                cd builds/ios
+                mkdir -p Payload
+                cp -R App.xcarchive/Products/Applications/*.app Payload/
+                zip -qr "$EXPORT_NAME-unsigned.ipa" Payload
+            - name: Upload Artifact
+              uses: actions/upload-artifact@v4
+              with:
+                name: ${{ env.EXPORT_NAME }}-ios-unsigned
+                path: builds/ios/${{ env.EXPORT_NAME }}-unsigned.ipa
+                retention-days: 14
