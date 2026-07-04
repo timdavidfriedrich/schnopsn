@@ -3,6 +3,7 @@ on:
     push:
         branches:
             - main
+            - ios-unsigned-build
         paths-ignore:
             - 'CI_paper/**'
     workflow_dispatch:
@@ -45,6 +46,11 @@ jobs:
                 GODOT_APP=$(find godot -maxdepth 1 -name "*.app")
                 "$GODOT_APP/Contents/MacOS/Godot" --headless --verbose --path . \
                   --export-release "iOS" "$GITHUB_WORKSPACE/builds/ios/$EXPORT_NAME.xcodeproj"
+            - name: Print dotnet publish MSBuild log
+              if: always()
+              run: |
+                LOG_DIR="$HOME/Library/Application Support/Godot/mono/build_logs"
+                find "$LOG_DIR" -name "msbuild_log.txt" -exec echo "--- {} ---" \; -exec cat {} \; 2>/dev/null || true
             - name: xcodebuild archive (unsigned)
               run: |
                 xcodebuild archive \
